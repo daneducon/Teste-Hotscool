@@ -1892,11 +1892,56 @@ body.report-open { overflow: hidden; }
 
 @media print {
   @page { size: A4 portrait; margin: 0; }
-  body * { visibility: hidden !important; }
-  .report-modal, .report-modal * { visibility: visible !important; }
-  .report-modal { display: block !important; position: absolute; inset: 0; padding: 0; background: white; overflow: visible; }
-  .report-modal-dialog { width: 210mm; margin: 0; border-radius: 0; box-shadow: none; }
+  html, body {
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+  body > *:not(.report-modal) { display: none !important; }
+  .report-modal {
+    display: block !important;
+    position: static !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+    overflow: hidden !important;
+    backdrop-filter: none !important;
+  }
+  .report-modal-dialog {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+  }
   .report-modal-header { display: none !important; }
-  .report-preview-stage { display: block; padding: 0; background: white; overflow: visible; }
-  .student-report-page { width: 210mm; min-width: 210mm; height: 297mm; box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .report-preview-stage {
+    display: block !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+    overflow: hidden !important;
+  }
+  .student-report-page {
+    width: 210mm !important;
+    min-width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    break-after: avoid-page;
+    page-break-after: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }

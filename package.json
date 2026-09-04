@@ -20,6 +20,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "google-auth-library": "^11.0.2",
-    "jose": "^6.2.11"
+    "html2canvas": "^1.4.1",
+    "jose": "^6.2.11",
+    "jspdf": "^4.2.1"
   }
 }

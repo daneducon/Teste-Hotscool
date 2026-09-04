@@ -311,12 +311,52 @@ studentReportModal?.addEventListener('click', (event) => {
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && studentReportModal?.classList.contains('open')) closeStudentReport();
 });
-downloadStudentReportBtn?.addEventListener('click', () => {
-  const previousTitle = document.title;
-  const safeName = String(currentStudentDashboardData?.nome || 'aluno').replace(/[^a-z0-9]+/gi, '-');
-  document.title = `relatorio-${safeName}`;
-  window.print();
-  setTimeout(() => { document.title = previousTitle; }, 500);
+downloadStudentReportBtn?.addEventListener('click', async () => {
+  const reportPage = document.getElementById('studentReportPage');
+  const originalContent = downloadStudentReportBtn.innerHTML;
+  downloadStudentReportBtn.disabled = true;
+  downloadStudentReportBtn.textContent = 'Gerando PDF...';
+
+  try {
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf'),
+    ]);
+    await document.fonts?.ready;
+    await Promise.all(
+      Array.from(reportPage.querySelectorAll('img')).map((image) => {
+        if (image.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          image.addEventListener('load', resolve, { once: true });
+          image.addEventListener('error', resolve, { once: true });
+        });
+      })
+    );
+
+    const canvas = await html2canvas(reportPage, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      logging: false,
+    });
+    const imageData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+    pdf.addImage(imageData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+
+    const safeName = String(currentStudentDashboardData?.nome || 'aluno')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    pdf.save(`relatorio_${safeName}_hotscool.pdf`);
+  } catch {
+    alert('Não foi possível gerar o PDF. Tente novamente.');
+  } finally {
+    downloadStudentReportBtn.disabled = false;
+    downloadStudentReportBtn.innerHTML = originalContent;
+  }
 });
 
 function switchDashboardSubtab(target) {
