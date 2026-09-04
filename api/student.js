@@ -1,6 +1,6 @@
 import { fetchCoursesFromSchool } from './courses.js';
 import { randomBytes } from 'node:crypto';
-import { blockUnauthenticatedDeployment } from './deployment-guard.js';
+import { requireAuth } from './auth-utils.js';
 
 const HOTSCOOL_API_URL = 'https://api.hotscool.com/v1';
 const HOTSCOOL_STUDENT_PORTAL_URL = process.env.HOTSCOOL_STUDENT_PORTAL_URL || 'https://app.hotscool.com';
@@ -150,7 +150,8 @@ function isStudentMatch(student, targetEmail) {
  *   3. Se a Key não tem permissão de escrita → retorna erro claro
  */
 export default async function handler(req, res) {
-  if (blockUnauthenticatedDeployment(res)) return;
+  const authenticatedUser = await requireAuth(req, res);
+  if (!authenticatedUser) return;
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');

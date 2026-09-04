@@ -1,5 +1,124 @@
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+  })[char]);
+}
+
+function safeHttpsUrl(value) {
+  try {
+    const url = new URL(String(value));
+    return url.protocol === 'https:' ? url.href : '';
+  } catch {
+    return '';
+  }
+}
+
+const loginError = document.getElementById('loginError');
+const googleLoginButton = document.getElementById('googleLoginButton');
+const authenticatedUserName = document.getElementById('authenticatedUserName');
+const authenticatedUserEmail = document.getElementById('authenticatedUserEmail');
+const authenticatedUserAvatar = document.getElementById('authenticatedUserAvatar');
+const logoutBtn = document.getElementById('logoutBtn');
+
+function showLoginError(message) {
+  loginError.textContent = message;
+  loginError.style.display = 'block';
+}
+
+function showAuthenticatedApp(user) {
+  authenticatedUserName.textContent = user.name || 'Usuario autorizado';
+  authenticatedUserEmail.textContent = user.email || '';
+
+  if (user.picture) {
+    const pictureUrl = safeHttpsUrl(user.picture);
+    authenticatedUserAvatar.textContent = '';
+    authenticatedUserAvatar.style.backgroundImage = pictureUrl ? `url("${pictureUrl}")` : '';
+    authenticatedUserAvatar.style.backgroundSize = 'cover';
+    authenticatedUserAvatar.style.backgroundPosition = 'center';
+  } else {
+    const names = String(user.name || user.email || 'U').trim().split(/\s+/);
+    authenticatedUserAvatar.textContent = names.map((name) => name[0]).join('').slice(0, 2).toUpperCase();
+  }
+
+  document.body.classList.remove('auth-pending');
+}
+
+async function waitForGoogleIdentity() {
+  for (let attempt = 0; attempt < 50; attempt++) {
+    if (window.google?.accounts?.id) return true;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return false;
+}
+
+async function handleGoogleCredential(response) {
+  loginError.style.display = 'none';
+  try {
+    const result = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential }),
+    });
+    const data = await result.json();
+    if (!result.ok) throw new Error(data.error || 'Falha ao entrar com Google.');
+    showAuthenticatedApp(data.user);
+  } catch (error) {
+    showLoginError(error.message);
+  }
+}
+
+async function initializeAuthentication() {
+  try {
+    const sessionResponse = await fetch('/api/auth/session');
+    if (sessionResponse.ok) {
+      const session = await sessionResponse.json();
+      if (session.authenticated) {
+        showAuthenticatedApp(session.user);
+        return;
+      }
+    }
+
+    const configResponse = await fetch('/api/auth/config');
+    const config = await configResponse.json();
+    if (!configResponse.ok || !config.configured || !config.clientId) {
+      showLoginError('Configure as credenciais Google nas variaveis de ambiente da Vercel.');
+      return;
+    }
+
+    if (!await waitForGoogleIdentity()) {
+      showLoginError('Nao foi possivel carregar o login do Google.');
+      return;
+    }
+
+    window.google.accounts.id.initialize({
+      client_id: config.clientId,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+    window.google.accounts.id.renderButton(googleLoginButton, {
+      theme: 'outline',
+      size: 'large',
+      shape: 'rectangular',
+      text: 'continue_with',
+      width: 340,
+      locale: 'pt-BR',
+    });
+  } catch {
+    showLoginError('Nao foi possivel iniciar a autenticacao. Tente novamente.');
+  }
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.google?.accounts?.id?.disableAutoSelect();
+    window.location.reload();
+  });
+}
+
 // ==========================================
 // 1. SIDEBAR NAVIGATION
 // ==========================================
@@ -164,16 +283,20 @@ function renderStudentCourses(courses) {
     const isDone = c.concluido || perc >= 100;
     const statusClass = isDone ? 'success' : 'warning';
     const statusText = isDone ? 'Concluido' : 'Em Andamento';
-    const turma = c.turma && c.turma !== 'null' ? c.turma : '';
+    const turma = c.turma && c.turma !== 'null' ? escapeHtml(c.turma) : '';
+    const title = escapeHtml(c.titulo_curso);
+    const imageUrl = safeHttpsUrl(c.imagem);
+    const accessUrl = safeHttpsUrl(c.acessoUrl) || 'https://app.hotscool.com/';
+    const certificateUrl = safeHttpsUrl(c.certificadoUrl);
 
     let actions = '';
-    if (isDone && c.certificadoUrl) {
-      actions = `<a href="${c.certificadoUrl}" target="_blank" class="btn-cert">
+    if (isDone && certificateUrl) {
+      actions = `<a href="${certificateUrl}" target="_blank" rel="noopener noreferrer" class="btn-cert">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
         Ver Certificado Autenticado
       </a>`;
     } else if (!isDone) {
-      actions = `<a href="${c.acessoUrl || 'https://app.hotscool.com'}" target="_blank" rel="noopener noreferrer" class="btn-continue">
+      actions = `<a href="${accessUrl}" target="_blank" rel="noopener noreferrer" class="btn-continue">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         Continuar Curso
       </a>`;
@@ -183,20 +306,20 @@ function renderStudentCourses(courses) {
 
     return `
       <div class="course-card">
-        <div class="course-card-cover ${c.imagem ? '' : 'empty'}">
-          ${c.imagem
-            ? `<img src="${c.imagem}" alt="Capa do curso ${c.titulo_curso}" loading="lazy">`
-            : `<span>${c.titulo_curso?.slice(0, 1) || 'H'}</span>`}
+        <div class="course-card-cover ${imageUrl ? '' : 'empty'}">
+          ${imageUrl
+            ? `<img src="${imageUrl}" alt="Capa do curso ${title}" loading="lazy">`
+            : `<span>${escapeHtml(c.titulo_curso?.slice(0, 1) || 'H')}</span>`}
         </div>
         <div class="course-card-body">
         <div class="course-card-status">
           <span class="status-pill ${statusClass}">${statusText}</span>
           ${turma ? `<span style="font-size:11px;color:var(--graphite-muted)">Turma: ${turma}</span>` : ''}
         </div>
-        <h4 class="course-card-title">${c.titulo_curso}</h4>
+        <h4 class="course-card-title">${title}</h4>
         <div class="course-card-meta">
-          ${c.escola ? `<span>${c.escola}</span>` : ''}
-          ${c.categoria ? `<span>+ ${c.categoria}</span>` : ''}
+          ${c.escola ? `<span>${escapeHtml(c.escola)}</span>` : ''}
+          ${c.categoria ? `<span>+ ${escapeHtml(c.categoria)}</span>` : ''}
         </div>
         <div class="course-progress-section">
           <div class="course-progress-row">
@@ -225,10 +348,10 @@ function renderStudentCertificates(certs) {
   dashCertsContainer.innerHTML = certs.map((c) => `
     <div class="cert-card">
       <div class="cert-info">
-        <span class="cert-name">${c.cursoNome}</span>
-        <span class="cert-date">Emitido em: ${c.dataEmissao}</span>
+        <span class="cert-name">${escapeHtml(c.cursoNome)}</span>
+        <span class="cert-date">Emitido em: ${escapeHtml(c.dataEmissao)}</span>
       </div>
-      <a href="${c.url}" target="_blank" rel="noopener noreferrer" class="cert-link">
+      <a href="${safeHttpsUrl(c.url) || '#'}" target="_blank" rel="noopener noreferrer" class="cert-link">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Abrir PDF
       </a>
@@ -249,9 +372,10 @@ function showDashboard(data) {
   if (registryStudentId) registryStudentId.textContent = data.id ? `#${data.id}` : '-';
   if (registryExternalCode) registryExternalCode.textContent = data.codigoExterno || 'Nao informado';
 
-  if (data.avatar && data.avatar.startsWith('http')) {
+  const avatarUrl = safeHttpsUrl(data.avatar);
+  if (avatarUrl) {
     dashAvatar.className = '';
-    dashAvatar.innerHTML = `<img src="${data.avatar}" alt="${rawNome}" class="profile-avatar-img">`;
+    dashAvatar.innerHTML = `<img src="${avatarUrl}" alt="${escapeHtml(rawNome)}" class="profile-avatar-img">`;
   } else {
     const names = rawNome.trim().split(/\s+/);
     const initials = names.length > 1
@@ -343,7 +467,7 @@ function showDashboard(data) {
 
   if (Array.isArray(data.trilhas) && data.trilhas.length > 0) {
     dashDetailTrails.innerHTML = data.trilhas
-      .map((t) => `<span class="trail-chip">${t.nome || t.titulo || 'Trilha'}</span>`)
+      .map((t) => `<span class="trail-chip">${escapeHtml(t.nome || t.titulo || 'Trilha')}</span>`)
       .join('');
   } else {
     dashDetailTrails.innerHTML = '<span class="trail-empty">Nenhuma trilha vinculada</span>';
@@ -372,12 +496,12 @@ function renderLearningProgress(courses) {
       ? `${course.titulo_curso.slice(0, 16)}...`
       : course.titulo_curso;
     return `
-      <div class="chart-bar-item" title="${course.titulo_curso}: ${progress}%">
+      <div class="chart-bar-item" title="${escapeHtml(course.titulo_curso)}: ${progress}%">
         <span class="bar-value">${progress}%</span>
         <div class="bar" style="height:${Math.max(8, progress)}%">
           <span class="bar-fill ${progress >= 100 ? 'green' : progress >= 50 ? 'gold' : 'coral'}"></span>
         </div>
-        <span class="bar-label">${shortTitle}</span>
+        <span class="bar-label">${escapeHtml(shortTitle)}</span>
       </div>`;
   }).join('');
   total.textContent = `${courses.length} curso(s) sincronizado(s)`;
@@ -475,7 +599,7 @@ async function ensureSchoolsLoaded() {
       regSchool.innerHTML = '<option value="" disabled>Nenhuma escola encontrada</option>';
       return;
     }
-    regSchool.innerHTML = schools.map((s) => `<option value="${s.id}">${s.name}</option>`).join('');
+    regSchool.innerHTML = schools.map((s) => `<option value="${Number(s.id)}">${escapeHtml(s.name)}</option>`).join('');
     schoolsLoaded = true;
     loadCoursesForSelectedSchool();
   } catch (err) {
@@ -512,9 +636,9 @@ function renderCoursesList(courses) {
       <label class="course-check-item ${isChecked ? 'selected' : ''}" data-id="${c.id}">
         <input type="checkbox" value="${c.id}" ${isChecked ? 'checked' : ''}>
         <div class="course-check-info">
-          <span class="course-check-name">${c.nome}</span>
+          <span class="course-check-name">${escapeHtml(c.nome)}</span>
           <div class="course-check-meta">
-            ${c.categoria ? `<span>${c.categoria}</span>` : ''}
+            ${c.categoria ? `<span>${escapeHtml(c.categoria)}</span>` : ''}
           </div>
         </div>
         ${duration ? `<span class="course-check-duration">
@@ -647,15 +771,15 @@ if (registerForm) {
       });
       const data = await res.json();
       if (!res.ok) {
-        showRegisterFeedback('error', `${data.error || 'Erro ao realizar cadastro.'}`);
+        showRegisterFeedback('error', escapeHtml(data.error || 'Erro ao realizar cadastro.'));
         return;
       }
 
       const cursosHtml = selectedCourseTitles.length > 0
-        ? `<ul style="margin:8px 0 8px 20px;font-size:13px;">${selectedCourseTitles.map((t) => `<li>${t}</li>`).join('')}</ul>` : '';
+        ? `<ul style="margin:8px 0 8px 20px;font-size:13px;">${selectedCourseTitles.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>` : '';
 
       showRegisterFeedback('success',
-        `<strong>${data.message}</strong>${cursosHtml}` +
+        `<strong>${escapeHtml(data.message)}</strong>${cursosHtml}` +
         `<p style="font-size:12px;margin-top:8px;opacity:0.7;">O cadastro e instantaneo. Pode levar alguns segundos para aparecer na consulta.</p>` +
         `<button type="button" id="goToSearchBtn" class="btn-coral" style="margin-top:12px;padding:8px 16px;font-size:13px;width:auto;">Ver cadastro deste aluno</button>`
       );
@@ -803,7 +927,7 @@ async function ensureCsvSchoolsLoaded() {
       csvSchoolSelect.innerHTML = '<option value="" disabled>Nenhuma escola encontrada</option>';
       return;
     }
-    csvSchoolSelect.innerHTML = csvLoadedSchools.map((s) => `<option value="${s.id}">${s.name}</option>`).join('');
+    csvSchoolSelect.innerHTML = csvLoadedSchools.map((s) => `<option value="${Number(s.id)}">${escapeHtml(s.name)}</option>`).join('');
   } catch (err) {
     csvSchoolSelect.innerHTML = '<option value="" disabled>Erro ao carregar escolas</option>';
   }
@@ -1070,7 +1194,7 @@ if (btnAnalyzeCsv) {
       renderPreviewTable(parsedStudentsData);
       showCsvSection('preview');
     } catch (err) {
-      showCsvFeedback('error', err.message);
+      showCsvFeedback('error', escapeHtml(err.message));
     } finally {
       setCsvAnalyzeLoading(false);
     }
@@ -1088,7 +1212,7 @@ function renderPreviewTable(students) {
     const initials = s.nome.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
     const courseChips = s.mappedCourses.length > 0
       ? s.mappedCourses.map((c) => c.found
-        ? `<span class="course-chip valid">${c.nome} <small>#${c.id}</small></span>`
+        ? `<span class="course-chip valid">${escapeHtml(c.nome)} <small>#${Number(c.id)}</small></span>`
         : `<span class="course-chip invalid">#${c.id} (Nao encontrado)</span>`
       ).join('')
       : '<span style="color:var(--graphite-subtle);font-style:italic;font-size:12px;">Nenhum curso (lead)</span>';
@@ -1103,15 +1227,15 @@ function renderPreviewTable(students) {
       <tr>
         <td>
           <div class="student-cell">
-            <div class="student-avatar">${initials}</div>
+            <div class="student-avatar">${escapeHtml(initials)}</div>
             <div>
-              <div class="student-name">${s.nome}</div>
-              ${subMeta ? `<div class="student-meta">${subMeta}</div>` : ''}
+              <div class="student-name">${escapeHtml(s.nome)}</div>
+              ${subMeta ? `<div class="student-meta">${escapeHtml(subMeta)}</div>` : ''}
             </div>
           </div>
         </td>
-        <td><code style="font-size:12px;color:var(--graphite-muted)">${s.email}</code></td>
-        <td style="font-size:12px">${csvLoadedSchools.find((sc) => String(sc.id) === String(csvSchoolSelect.value))?.name || ''}</td>
+        <td><code style="font-size:12px;color:var(--graphite-muted)">${escapeHtml(s.email)}</code></td>
+        <td style="font-size:12px">${escapeHtml(csvLoadedSchools.find((sc) => String(sc.id) === String(csvSchoolSelect.value))?.name || '')}</td>
         <td><div class="course-chips">${courseChips}</div></td>
         <td>${passBadge}</td>
         <td><span class="status-ready">Pronto p/ envio</span></td>
@@ -1185,8 +1309,8 @@ if (btnExecuteEnrollments) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
           </div>
           <div class="log-info">
-            <div class="log-name">${s.nome}</div>
-            <div class="log-email">${s.email}</div>
+            <div class="log-name">${escapeHtml(s.nome)}</div>
+            <div class="log-email">${escapeHtml(s.email)}</div>
           </div>
           <div class="log-courses">${s.validCourseIds.map((id) => `<span>#${id}</span>`).join(' ')}</div>
           <span class="log-status pending" id="execStatus-${idx}">Aguardando fila...</span>
@@ -1321,3 +1445,5 @@ if (enrollNewCourseBtn) {
     courseFilterInput?.focus();
   });
 }
+
+initializeAuthentication();

@@ -1,4 +1,4 @@
-import { blockUnauthenticatedDeployment } from './deployment-guard.js';
+import { requireAuth } from './auth-utils.js';
 
 const HOTSCOOL_API_URL = 'https://api.hotscool.com/v1';
 
@@ -174,7 +174,8 @@ export async function fetchCoursesFromSchool(apiKey) {
 }
 
 export default async function handler(req, res) {
-  if (blockUnauthenticatedDeployment(res)) return;
+  const authenticatedUser = await requireAuth(req, res);
+  if (!authenticatedUser) return;
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
