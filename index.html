@@ -643,7 +643,7 @@
       <div id="csvUploadSection" class="csv-section active">
         <div class="csv-grid">
           <!-- Coluna Upload -->
-          <div class="card">
+          <div class="card batch-parameters-card">
             <div class="step-tag">FLUXO DE INGRESSO AUTOMATIZADO &middot; ETAPA 01</div>
             <h2 class="card-headline">Upload de Arquivo e Mapeamento</h2>
             <p class="card-desc">Envie a planilha de estudantes em formato CSV, delimitada por ponto e vírgula ou
@@ -678,7 +678,7 @@
                 <span id="csvFileNameText">arquivo.csv</span>
                 <span class="file-size-badge" id="csvFileSizeText">0 KB</span>
               </div>
-              <button type="button" class="btn-ghost-sm danger" id="btnRemoveFile">Trash Arquivo</button>
+              <button type="button" class="btn-ghost-sm danger" id="btnRemoveFile">Excluir Arquivo</button>
             </div>
 
             <div class="csv-hint">
@@ -872,7 +872,7 @@
             <span class="preview-file-label">ARQUIVO CARREGADO</span>
             <span class="preview-file-value" id="previewFileName">matriculas_turma_2026.csv</span>
             <span class="preview-file-meta" id="previewFileMeta">Consistem Tech Academy + 4.2 KB</span>
-            <button type="button" class="link-btn danger" id="btnBackToUpload2">Trash Arquivo</button>
+            <button type="button" class="link-btn danger" id="btnBackToUpload2">Excluir Arquivo</button>
           </div>
           <div class="preview-file-item">
             <span class="preview-file-label">ALUNOS IDENTIFICADOS</span>
@@ -885,13 +885,13 @@
             </span>
           </div>
           <div class="preview-file-item">
-            <span class="preview-file-label">MAPEAMENTO NO ERP</span>
+            <span class="preview-file-label">MAPEAMENTO NO LMS</span>
             <span class="preview-file-value"><span id="kpiUniqueCourses">6</span> de 6</span>
             <span class="preview-file-meta success">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              100% Mapeados no ERP
+              100% Mapeados no LMS
             </span>
           </div>
           <div class="preview-file-item">
