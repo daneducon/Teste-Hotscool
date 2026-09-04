@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.env*
+!.env.example
+.DS_Store
+*.log
+.vercel
+users.json
+coverage/
+*.csv
+*.xlsx
+*.xls
+*.pem
+*.key
+credentials*.json
+service-account*.json
+
+# Documentos operacionais internos; manter fora de repositorios publicos.
+RELATORIO-PROJETO.md
+SDD-Hotscool-Manager.md
+HOTSCOOL-API-ENDPOINTS.md

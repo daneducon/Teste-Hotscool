@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+  <title>Hotscool Manager</title>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">
+        <div class="logo-icon">C</div>
+        <span class="logo-text">CONSISTEM</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button type="button" class="sidebar-btn active" data-sidebar="search" title="Consultar Aluno">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button type="button" class="sidebar-btn" data-sidebar="register" title="Cadastro Individual">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+        </button>
+        <button type="button" class="sidebar-btn" data-sidebar="csv" title="Matricula em Lote">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </button>
+      </nav>
+    </div>
+    <div class="sidebar-bottom">
+      <button type="button" class="sidebar-btn" title="Configuracoes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+      <button type="button" class="sidebar-btn" title="Ajuda">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CANVAS -->
+  <div class="main-canvas">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-brand">
+          <div class="brand-logo-sm">C</div>
+          <span class="brand-name">Hotscool Manager</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-user">
+          <div class="user-info">
+            <span class="user-role">Coordenacao Academica</span>
+            <span class="user-email">usuario@example.com</span>
+          </div>
+          <div class="user-avatar">DA</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb-bar">
+      <nav class="breadcrumb" id="breadcrumb">
+        <span class="breadcrumb-item">Gestao de Alunos</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item active" id="breadcrumbPage">Consulta do Aluno</span>
+      </nav>
+      <div class="erp-status">
+        <span class="erp-dot"></span>
+        <span>ERP Sincronizado</span>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ABA 1: CONSULTA DE ALUNO -->
+    <!-- ============================================ -->
+    <section id="searchTab" class="tab-content active">
+      <!-- SEARCH BAR -->
+      <div class="search-bar-card">
+        <form id="searchForm" class="search-form">
+          <div class="search-input-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="email" id="emailInput" placeholder="aluno@exemplo.com" required autocomplete="email">
+            <button type="button" class="search-clear-btn" id="searchClearBtn" title="Limpar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <button type="button" class="btn-secondary-outline" id="historyBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Historico Recente
+          </button>
+          <button type="submit" class="btn-coral" id="searchBtn">
+            <span id="btnText">Buscar Aluno</span>
+            <span id="btnLoader" class="loader" style="display:none"></span>
+          </button>
+        </form>
+        <p id="errorMsg" class="error-msg" style="display:none"></p>
+      </div>
+
+      <!-- DASHBOARD 360 -->
+      <div id="dashboard" class="dashboard-360" style="display:none">
+        <!-- Profile Hero -->
+        <div class="profile-hero">
+          <div class="profile-avatar-box">
+            <div id="dashAvatar" class="profile-avatar-initials">--</div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-name-row">
+              <h2 id="dashStudentName" class="profile-name">Nome do Aluno</h2>
+              <span class="status-pill success" id="dashStudentStatus">Matricula Ativa</span>
+              <span class="status-pill info" id="dashEmailConfirmTag" style="display:none">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                E-mail Verificado
+              </span>
+            </div>
+            <p class="profile-email" id="dashStudentEmail">aluno@exemplo.com</p>
+            <div class="profile-meta">
+              <span class="meta-item" id="dashSchoolTag">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                <span id="dashSchoolText">Escola Principal</span>
+              </span>
+              <span class="meta-sep">+</span>
+              <span class="meta-item" id="dashOrgTag" style="display:none">
+                <span id="dashOrgText"></span>
+              </span>
+              <span class="meta-sep" id="dashOrgSep" style="display:none">+</span>
+              <span class="meta-item" id="dashCodeTag" style="display:none">
+                ERP: <span id="dashCodeText"></span>
+              </span>
+            </div>
+            <div class="profile-meta">
+              <span class="meta-item" id="dashCadTag" style="display:none">
+                Membro desde: <span id="dashCadText"></span>
+              </span>
+              <span class="meta-sep" id="dashCadSep" style="display:none">+</span>
+              <span class="meta-item">
+                Ultimo acesso: <span id="dashAccessText">Hoje as 14:22</span>
+              </span>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button type="button" class="btn-ghost" id="exportBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar
+            </button>
+            <button type="button" class="btn-dark" id="erpAuditBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Auditoria ERP
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-icon blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-label">Inscricoes</span>
+              <span class="kpi-value" id="dashKpiTotalCourses">4</span>
+              <span class="kpi-sub" id="dashKpiTotalCoursesSub">+1 ate mais</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon gold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-label">Desempenho</span>
+              <span class="kpi-value" id="dashKpiProgress">78%</span>
+              <span class="kpi-sub">media geral</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-label">Conclusoes</span>
+              <span class="kpi-value" id="dashKpiCompletedCourses">2 Cursos</span>
+              <span class="kpi-sub">Aproveitamento 100%</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-label">Titulacoes</span>
+              <span class="kpi-value" id="dashKpiCertificates">2 Emitidos</span>
+              <span class="kpi-sub">Acreditacao ICP-Brasil</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon rose">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="kpi-data">
+              <span class="kpi-label">Gamificacao</span>
+              <span class="kpi-value" id="dashKpiGamification">850</span>
+              <span class="kpi-sub" id="dashKpiGamificationSub">Nivel Especialista + 45 Moedas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-tabs -->
+        <div class="dash-subtabs">
+          <div class="subtabs-left">
+            <button type="button" class="subtab-btn active" data-subtab="courses">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              Cursos & Progresso <span class="subtab-count" id="countSubtabCourses">4</span>
+            </button>
+            <button type="button" class="subtab-btn" data-subtab="certs">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+              Certificados <span class="subtab-count" id="countSubtabCerts">2</span>
+            </button>
+            <button type="button" class="subtab-btn" data-subtab="gamification">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Gamificacao & Pontos
+            </button>
+            <button type="button" class="subtab-btn" data-subtab="academic">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              Vinculos & Academicos
+            </button>
+          </div>
+          <div class="subtabs-right">
+            <span class="subtabs-summary" id="subtabsSummary">2 em andamento + 2 concluidos</span>
+            <button type="button" class="btn-ghost-sm">
+              Mais recentes primeiro
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub-tab: Cursos -->
+        <div id="subtabCourses" class="subtab-panel active">
+          <div class="courses-grid" id="dashCoursesContainer"></div>
+        </div>
+
+        <!-- Sub-tab: Certificados -->
+        <div id="subtabCerts" class="subtab-panel" style="display:none">
+          <div class="certs-grid" id="dashCertsContainer"></div>
+        </div>
+
+        <!-- Sub-tab: Gamificacao -->
+        <div id="subtabGamification" class="subtab-panel" style="display:none">
+          <div class="gamification-card">
+            <div class="gamif-header">
+              <span class="gamif-trophy">&#127942;</span>
+              <div>
+                <h3 id="dashGamifLevelName">Nivel Especialista</h3>
+                <p id="dashGamifBadgeText">Conquistas e engajamento na plataforma</p>
+              </div>
+            </div>
+            <div class="gamif-stats">
+              <div class="gamif-stat">
+                <span class="gamif-label">Pontos Acumulados</span>
+                <span class="gamif-value" id="dashGamifPoints">0</span>
+              </div>
+              <div class="gamif-stat">
+                <span class="gamif-label">Moedas Virtuais</span>
+                <span class="gamif-value" id="dashGamifCoins">0</span>
+              </div>
+              <div class="gamif-stat">
+                <span class="gamif-label">Acoes Realizadas</span>
+                <span class="gamif-value" id="dashGamifActions">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-tab: Academicos -->
+        <div id="subtabAcademic" class="subtab-panel" style="display:none">
+          <div class="academic-grid">
+            <div class="academic-card">
+              <span class="academic-label">Departamento</span>
+              <span class="academic-value" id="dashDetailDept">-</span>
+            </div>
+            <div class="academic-card">
+              <span class="academic-label">Unidade / Polo</span>
+              <span class="academic-value" id="dashDetailUnit">-</span>
+            </div>
+            <div class="academic-card">
+              <span class="academic-label">Cargo</span>
+              <span class="academic-value" id="dashDetailRole">-</span>
+            </div>
+            <div class="academic-card">
+              <span class="academic-label">Codigo ERP / Matricula</span>
+              <span class="academic-value" id="dashDetailCode">-</span>
+            </div>
+            <div class="academic-card full">
+              <span class="academic-label">Trilhas de Aprendizagem</span>
+              <div class="trails-box" id="dashDetailTrails">
+                <span class="trail-empty">Nenhuma trilha vinculada</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="dashboard-bottom">
+          <div class="history-chart-card">
+            <div class="chart-header">
+              <h3>Progresso por Curso</h3>
+              <span class="chart-badge success">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Dados da Hotscool
+              </span>
+            </div>
+            <p class="chart-sub">Percentual concluido informado pelo relatorio de cada curso.</p>
+            <div class="chart-bars" id="learningProgressChart"></div>
+            <div class="chart-footer">
+              <span class="chart-legend"><span class="legend-dot coral"></span> Atualizado junto com a consulta do aluno</span>
+              <span class="chart-total" id="learningProgressTotal">Dados sincronizados agora</span>
+            </div>
+          </div>
+
+          <div class="registry-card">
+            <div class="registry-header">
+              <h3>Registro & Governanca</h3>
+              <div class="registry-actions">
+                <button type="button" class="btn-icon" title="Notificacoes">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </button>
+                <button type="button" class="btn-icon" title="Editar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="registry-list">
+              <div class="registry-row">
+                <span class="registry-label">Status na Hotscool</span>
+                <span class="status-pill success" id="registryStudentStatus">Ativo</span>
+              </div>
+              <div class="registry-row">
+                <span class="registry-label">Identificador do Aluno</span>
+                <span class="registry-value" id="registryStudentId">-</span>
+              </div>
+              <div class="registry-row">
+                <span class="registry-label">Codigo Externo / ERP</span>
+                <span class="registry-value" id="registryExternalCode">Nao informado</span>
+              </div>
+            </div>
+            <button type="button" class="btn-coral full-width" id="enrollNewCourseBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              Matricular com Novo Curso
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- ABA 2: CADASTRO INDIVIDUAL -->
+    <!-- ============================================ -->
+    <section id="registerTab" class="tab-content" style="display:none">
+      <div class="page-title-block">
+        <h1 class="page-title">Cadastro Manual de Aluno</h1>
+        <p class="page-subtitle">Preencha as credenciais do estudante e selecione os cursos autorizados para provisionamento automatico na Hotscool.</p>
+      </div>
+
+      <div class="register-grid">
+        <!-- Coluna Esquerda: Formulario -->
+        <div class="card" id="registerFormCard">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <h3 class="card-title">Identificacao e Acesso</h3>
+              <p class="card-subtitle">Credenciais e dados institucionais do discente</p>
+            </div>
+            <span class="step-badge">Etapa 1 de 2</span>
+          </div>
+
+          <form id="registerForm" class="form-stack">
+            <div class="form-group">
+              <label class="form-label">Escola de Destino Hotscool <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select id="regSchool" required>
+                  <option value="" disabled selected>Carregando escolas...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nome Completo <span class="required">*</span></label>
+              <div class="input-icon-wrapper">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input type="text" id="regName" placeholder="Ex: Mariana Silva Souza" required autocomplete="name">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">E-mail Institucional ou Pessoal <span class="required">*</span></label>
+              <div class="input-icon-wrapper">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <input type="email" id="regEmail" placeholder="aluno@example.com" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-row">
+                <label class="form-label">Senha Provisoria de Acesso <span class="required">*</span></label>
+                <button type="button" class="link-btn" id="resetPasswordBtn">Restaurar padrao</button>
+              </div>
+              <div class="input-icon-wrapper">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="text" id="regPassword" placeholder="Deixe vazio para gerar uma senha segura" autocomplete="new-password">
+              </div>
+              <span class="field-hint">O aluno redefinira no primeiro acesso a Hotscool.</span>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <div>
+                  <span class="toggle-title">Enviar e-mail de boas-vindas com link de ativacao</span>
+                  <span class="toggle-desc">Despacho automatizado via servidor SMTP corporativo</span>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="regSendEmail" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </form>
+        </div>
+
+        <!-- Coluna Direita: Cursos -->
+        <div class="card" id="registerCoursesCard">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <div>
+              <h3 class="card-title">Cursos para Matricula</h3>
+              <p class="card-subtitle">Selecione as turmas que serao liberadas imediatamente</p>
+            </div>
+            <span class="course-count-badge" id="coursesBadge">0 cursos selecionados</span>
+          </div>
+
+          <div class="courses-toolbar">
+            <div class="filter-input-wrapper">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              <input type="text" id="courseFilterInput" placeholder="Filtrar cursos...">
+            </div>
+            <div class="courses-actions">
+              <button type="button" class="btn-ghost-sm" id="selectAllBtn">Todos</button>
+              <button type="button" class="btn-ghost-sm" id="deselectAllBtn">Limpar</button>
+            </div>
+          </div>
+
+          <div id="coursesListContainer" class="courses-list">
+            <div class="empty-state">Selecione uma escola para carregar os cursos disponiveis.</div>
+          </div>
+
+          <div class="license-warning">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p><strong>Regra Hotscool:</strong> Se nenhum curso for selecionado, o cadastro sera gravado na condicao de Lead, sem consumo de licenca ativa.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer do Cadastro -->
+      <div class="form-footer">
+        <span class="form-footer-note">* Campos obrigatorios para provisionamento imediato</span>
+        <div class="form-footer-actions">
+          <button type="button" class="btn-ghost" id="clearRegisterBtn">Limpar Formulario</button>
+          <button type="button" class="btn-coral" id="regSubmitBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+            <span id="regBtnText">Cadastrar e Matricular Aluno</span>
+            <span id="regBtnLoader" class="loader" style="display:none"></span>
+          </button>
+        </div>
+      </div>
+      <div id="regFeedback" class="feedback-box" style="display:none"></div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- ABA 3: MATRICULA EM LOTE CSV -->
+    <!-- ============================================ -->
+    <section id="csvTab" class="tab-content" style="display:none">
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step active" data-step="1">
+          <div class="step-number">1</div>
+          <div class="step-info">
+            <span class="step-label">ETAPA 01</span>
+            <span class="step-title">Upload & Configuracoes</span>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-info">
+            <span class="step-label">ETAPA 02</span>
+            <span class="step-title">Validacao & Previa</span>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-info">
+            <span class="step-label">ETAPA 03</span>
+            <span class="step-title">Execucao & Relatorio</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 1: Upload -->
+      <div id="csvUploadSection" class="csv-section active">
+        <div class="csv-grid">
+          <!-- Coluna Upload -->
+          <div class="card">
+            <div class="step-tag">FLUXO DE INGRESSO AUTOMATIZADO &middot; ETAPA 01</div>
+            <h2 class="card-headline">Upload de Arquivo e Mapeamento</h2>
+            <p class="card-desc">Envie a planilha de estudantes no formato .CSV delimitado por ponto e virgula ou virgula para cruzamento automatico com os cursos cadastrados no ERP Consistem.</p>
+
+            <div class="dropzone" id="csvDropzone">
+              <input type="file" id="csvFileInput" accept=".csv,.txt" class="file-input-hidden">
+              <div class="dropzone-inner">
+                <div class="dropzone-icon-box">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <p class="dropzone-title">Arraste e solte o arquivo .CSV aqui</p>
+                <p class="dropzone-sub">ou clique para navegar nos seus arquivos locais</p>
+                <div class="dropzone-tags">
+                  <span class="tag">Formato: .CSV (UTF-8 ou ANSI)</span>
+                  <span class="tag">Separador: Ponto e virgula (;)</span>
+                  <span class="tag">Limite max: 10MB</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="csvFileInfoBar" class="file-info-bar" style="display:none">
+              <div class="file-info-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span id="csvFileNameText">arquivo.csv</span>
+                <span class="file-size-badge" id="csvFileSizeText">0 KB</span>
+              </div>
+              <button type="button" class="btn-ghost-sm danger" id="btnRemoveFile">Trash Arquivo</button>
+            </div>
+
+            <div class="csv-hint">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              A planilha deve conter colunas: <strong>NOME, CPF, EMAIL, CURSO_ID</strong>
+              <button type="button" class="link-btn download-link" id="downloadTemplateBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Baixar Modelo Padrao de Planilha (.CSV)
+              </button>
+            </div>
+
+            <div class="paste-toggle">
+              <button type="button" class="btn-ghost-sm" id="togglePasteBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Ou cole o conteudo do CSV em texto puro
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div id="pasteWrapper" class="paste-wrapper" style="display:none">
+                <textarea id="csvPasteTextarea" rows="6" placeholder="Cole aqui as linhas com cabecalho (nome;email;enviar email para definir senha;senha;ID dos Conteudos;...)"></textarea>
+              </div>
+            </div>
+
+            <div class="csv-features">
+              <div class="feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <div>
+                  <strong>Deduplicacao por CPF</strong>
+                  <span>Cadastros ja existentes no ERP serao atualizados, evitando contas duplicadas.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                <div>
+                  <strong>Mapeamento de Turma</strong>
+                  <span>O codigo do curso na planilha vincula automaticamente a turma vigente.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <div>
+                  <strong>Acesso Seguro</strong>
+                  <span>Tokens temporarios gerados com expiracao de 72 horas para seguranca.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna Parametros -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Parametros Gerais do Lote</h3>
+              <button type="button" class="btn-icon" title="Configuracoes">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+              </button>
+            </div>
+            <p class="card-desc">Defina a escola de destino e as credenciais padrao aplicadas a este lote.</p>
+
+            <div class="form-group">
+              <label class="form-label">Escola de Destino Hotscool <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select id="csvSchoolSelect" required>
+                  <option value="" disabled selected>Carregando escolas...</option>
+                </select>
+              </div>
+              <span class="field-hint info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Cruza os IDs da planilha com os cursos desta unidade
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Pais dos Alunos <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select id="csvPaisSelect">
+                  <option value="1" selected>Brasil (+55)</option>
+                  <option value="2">Estados Unidos (+1)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-row">
+                <label class="form-label">Senha Fallback Padrao <span class="required">*</span></label>
+                <span class="label-tag">Recomendado</span>
+              </div>
+              <div class="input-with-action">
+                <div class="input-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <input type="text" id="csvDefaultPassword" placeholder="Deixe vazio para gerar individualmente">
+                </div>
+                <button type="button" class="btn-ghost-sm" id="copyPasswordBtn">Copiar</button>
+              </div>
+              <span class="field-hint">Sera atribuida caso a coluna de senha esteja vazia no arquivo .CSV. O aluno redefinira no primeiro acesso.</span>
+            </div>
+
+            <div class="toggle-row card-toggle">
+              <div class="toggle-info">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <div>
+                  <span class="toggle-title">Disparar e-mail com link de ativacao</span>
+                  <span class="toggle-desc">Envia credenciais e link de primeiro acesso aos novos alunos assim que matriculados.</span>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="csvForceWelcomeEmail" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="validation-warning">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <p><strong>Regra de Validacao Previa:</strong> Na proxima etapa voce vera o cruzamento dos IDs de cursos encontrados na planilha antes de qualquer gravacao ou cobranca de licenca institucional no banco de dados.</p>
+            </div>
+
+            <div class="auditor-card">
+              <div class="auditor-avatar">DA</div>
+              <div class="auditor-info">
+                <span class="auditor-name">Coordenacao Academica</span>
+                <span class="auditor-email">usuario@example.com</span>
+              </div>
+              <span class="auditor-badge">AUDITOR</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <span class="form-footer-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Nenhum dado e gravado no banco ate a confirmacao na Etapa 02.
+          </span>
+          <div class="form-footer-actions">
+            <button type="button" class="btn-ghost" id="clearCsvBtn">Limpar Formulario</button>
+            <button type="button" class="btn-coral" id="btnAnalyzeCsv">
+              <span id="btnAnalyzeText">Avancar para Validacao e Previa</span>
+              <span id="btnAnalyzeLoader" class="loader" style="display:none"></span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="csvUploadFeedback" class="feedback-box" style="display:none"></div>
+      </div>
+
+      <!-- ETAPA 2: Preview -->
+      <div id="csvPreviewSection" class="csv-section" style="display:none">
+        <!-- File Info Bar -->
+        <div class="preview-file-bar">
+          <div class="preview-file-item">
+            <span class="preview-file-label">ARQUIVO CARREGADO</span>
+            <span class="preview-file-value" id="previewFileName">matriculas_turma_2026.csv</span>
+            <span class="preview-file-meta" id="previewFileMeta">Consistem Tech Academy + 4.2 KB</span>
+            <button type="button" class="link-btn danger" id="btnBackToUpload2">Trash Arquivo</button>
+          </div>
+          <div class="preview-file-item">
+            <span class="preview-file-label">ALUNOS IDENTIFICADOS</span>
+            <span class="preview-file-value" id="kpiTotalStudents">28 registros</span>
+            <span class="preview-file-meta success">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              100% Validos (sem duplicidade CPF)
+            </span>
+          </div>
+          <div class="preview-file-item">
+            <span class="preview-file-label">MAPEAMENTO NO ERP</span>
+            <span class="preview-file-value"><span id="kpiUniqueCourses">6</span> de 6</span>
+            <span class="preview-file-meta success">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              100% Mapeados no ERP
+            </span>
+          </div>
+          <div class="preview-file-item">
+            <span class="preview-file-label">VOLUME DE MATRICULAS</span>
+            <span class="preview-file-value highlight" id="kpiTotalEnrollments">74 Inscricoes</span>
+            <span class="preview-file-meta">Media de 2.64 cursos por estudante</span>
+          </div>
+        </div>
+
+        <div class="preview-table-card">
+          <div class="preview-table-header">
+            <div>
+              <h3>Pre-visualizacao dos Registros da Planilha</h3>
+              <p>Revise os estudantes identificados, o cruzamento de codigos com a grade Hotscool e as regras de credenciais antes do disparo em lote.</p>
+            </div>
+            <button type="button" class="btn-ghost">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Baixar Relatorio de Consistencia
+            </button>
+          </div>
+
+          <div class="preview-toolbar">
+            <div class="preview-search-wrapper">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="previewFilterInput" placeholder="Buscar por nome, e-mail institucional ou curso...">
+            </div>
+            <div class="preview-filters">
+              <button type="button" class="filter-chip active" data-filter="all">Todos (<span id="filterAllCount">28</span>)</button>
+              <button type="button" class="filter-chip" data-filter="default-pass">Com Senha Padrao (<span id="filterDefaultCount">24</span>)</button>
+              <button type="button" class="filter-chip" data-filter="custom-pass">Senhas Pre-definidas (<span id="filterCustomCount">4</span>)</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ESTUDANTE</th>
+                  <th>E-MAIL CADASTRAL</th>
+                  <th>ESCOLA DE DESTINO</th>
+                  <th>CURSOS RECONHECIDOS</th>
+                  <th>CREDENCIAL DE ACESSO</th>
+                  <th>STATUS</th>
+                  <th>ACOES</th>
+                </tr>
+              </thead>
+              <tbody id="previewTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="table-pagination" id="previewPagination"></div>
+
+          <div class="preview-confirmation">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p><strong>Verificacao de Comunicacao e Disparo de E-mails:</strong> Ao confirmar, <span id="confirmStudentCount">28</span> estudantes receberao a notificacao de boas-vindas com seus respectivos links de primeiro acesso via Hotscool Manager. Os <strong><span id="confirmEnrollCount">74</span> registros de matricula</strong> serao gravados no banco de dados central com chave de sincronizacao no ERP Consistem.</p>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <button type="button" class="btn-ghost" id="btnBackToUpload">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Voltar para Upload e Configuracoes
+          </button>
+          <div class="form-footer-actions">
+            <button type="button" class="btn-ghost" id="discardBatchBtn">Descartar Lote</button>
+            <button type="button" class="btn-coral" id="btnExecuteEnrollments">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <span id="btnExecuteText">Confirmar e Iniciar Matriculas em Fila (74)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 3: Execucao -->
+      <div id="csvExecutionSection" class="csv-section" style="display:none">
+        <div class="execution-grid">
+          <div class="execution-main">
+            <!-- Progress Box -->
+            <div class="card execution-progress-card">
+              <div class="exec-progress-header">
+                <div>
+                  <h3 class="exec-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Execucao em Fila de Processamento
+                  </h3>
+                  <p class="exec-sub">Sincronizacao sequencial com API Hotscool v1 (taxa controlada de 250ms por chamada contra rate limits).</p>
+                </div>
+                <div class="exec-realtime">
+                  <span class="exec-speed">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Taxa atual: <strong id="execSpeed">4.0 req/s</strong>
+                  </span>
+                </div>
+              </div>
+
+              <div class="exec-progress-bar-row">
+                <span class="exec-progress-text">
+                  <strong>Progresso Geral:</strong> <span id="executionProgressPercent">0%</span> Concluido (<span id="execProcessedCount">0</span> de <span id="execTotalCount">0</span> estudantes processados)
+                </span>
+                <span class="exec-time-estimate">Tempo restante estimado: <span id="execTimeEstimate">~3s</span></span>
+              </div>
+              <div class="progress-bar-lg">
+                <div id="batchProgressBar" class="progress-bar-fill" style="width:0%"></div>
+              </div>
+
+              <div class="exec-stats-row">
+                <div class="exec-stat success">
+                  <div class="exec-stat-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="exec-stat-data">
+                    <span class="exec-stat-label">SUCESSOS</span>
+                    <span class="exec-stat-value" id="execSuccessCount">0</span>
+                  </div>
+                  <span class="exec-stat-pct" id="execSuccessPct">0%</span>
+                </div>
+                <div class="exec-stat danger">
+                  <div class="exec-stat-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  </div>
+                  <div class="exec-stat-data">
+                    <span class="exec-stat-label">FALHAS / RETENTATIVAS</span>
+                    <span class="exec-stat-value" id="execFailCount">0</span>
+                  </div>
+                  <span class="exec-stat-badge" id="execFailBadge">Em fila</span>
+                </div>
+                <div class="exec-stat neutral">
+                  <div class="exec-stat-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                  </div>
+                  <div class="exec-stat-data">
+                    <span class="exec-stat-label">RESTANTES NA FILA</span>
+                    <span class="exec-stat-value" id="execRemainingCount">0</span>
+                  </div>
+                  <span class="exec-stat-pct" id="execRemainingPct">0% restante</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Processing Log -->
+            <div class="card">
+              <div class="log-header">
+                <div>
+                  <h3 class="card-title">Registro de Processamento por Aluno</h3>
+                  <span class="log-count" id="logTotalCount">0 registros</span>
+                </div>
+                <span class="log-live-badge">
+                  <span class="live-dot"></span>
+                  Fila ativo
+                </span>
+              </div>
+              <div id="executionLogList" class="execution-log"></div>
+              <div class="log-footer">
+                <span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  Visualizando <span id="logVisibleCount">0</span> registros prioritarios de <span id="logTotalCount2">0</span> totais na fila
+                </span>
+                <span class="log-updating">Atualizacao em tempo real</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="execution-sidebar">
+            <!-- Email Dispatch -->
+            <div class="card email-dispatch-card">
+              <div class="card-header">
+                <h3 class="card-title">Comunicacao & Disparo de E-mails</h3>
+                <div class="dispatch-tags">
+                  <span class="tag-sm">SMTP</span>
+                  <span class="tag-sm coral">Hotscool</span>
+                </div>
+              </div>
+              <div class="dispatch-icon-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="dispatch-stat">
+                <span class="dispatch-label">Despacho de Primeiro Acesso:</span>
+                <span class="dispatch-value" id="execEmailsSent">0 enviados</span>
+              </div>
+              <p class="dispatch-desc">Cada estudante recebeu credenciais seguras e link com expiracao automatica em 48 horas.</p>
+              <div class="dispatch-checks">
+                <div class="dispatch-check success">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Webhook Corporativo Consistem: <strong>HTTP 200 OK</strong>
+                </div>
+                <div class="dispatch-check warning">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Reenvios Agendados: <span id="execRetries">0 pendente</span>
+                </div>
+                <div class="dispatch-check success">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Assinatura DKIM / SPF: <strong>Valida (100%)</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <span class="form-footer-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            O processo continua em segundo plano se voce sair desta pagina com seguranca.
+          </span>
+          <div class="form-footer-actions">
+            <button type="button" class="btn-ghost" id="btnCopyLog">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Baixar Relatorio de Execucao (.CSV)
+            </button>
+            <button type="button" class="btn-coral" id="btnGoToSearch" style="display:none">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              Ir para Consulta de Alunos
+            </button>
+            <button type="button" class="btn-coral" id="btnRestartBatch" style="display:none">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Nova Importacao de Planilha
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>Hotscool Integration Manager &copy; 2026</p>
+    </footer>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
