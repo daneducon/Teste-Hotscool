@@ -227,8 +227,97 @@ const dashDetailUnit = document.getElementById('dashDetailUnit');
 const dashDetailRole = document.getElementById('dashDetailRole');
 const dashDetailCode = document.getElementById('dashDetailCode');
 const dashDetailTrails = document.getElementById('dashDetailTrails');
+const studentReportBtn = document.getElementById('studentReportBtn');
+const studentReportModal = document.getElementById('studentReportModal');
+const closeStudentReportBtn = document.getElementById('closeStudentReportBtn');
+const downloadStudentReportBtn = document.getElementById('downloadStudentReportBtn');
 
 let currentStudentDashboardData = null;
+
+function setReportText(id, value, fallback = '-') {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value || fallback;
+}
+
+function populateStudentReport(data) {
+  const totalCourses = data.totalCursos || 0;
+  const completedCourses = data.cursosConcluidos || 0;
+  const progress = data.progressoGeral || 0;
+  const courses = Array.isArray(data.cursos) ? data.cursos : [];
+
+  setReportText('reportStudentName', data.nome);
+  setReportText('reportStudentEmail', data.email);
+  setReportText('reportGeneratedAt', new Intl.DateTimeFormat('pt-BR').format(new Date()));
+  setReportText('reportSchools', data.escola);
+  setReportText('reportStatus', data.status);
+  setReportText('reportDepartment', data.departamento, 'Não informado');
+  setReportText('reportRole', data.cargo, 'Não informado');
+  setReportText('reportUnit', data.unidade, 'Não informada');
+  setReportText('reportExternalCode', data.codigoExterno, 'Não informado');
+  setReportText('reportRegistrationDate', data.dataCadastro, 'Não informada');
+  setReportText('reportLastAccess', data.ultimoAcesso, 'Nunca acessou');
+  setReportText('reportTotalCourses', String(totalCourses), '0');
+  setReportText('reportAverageProgress', `${progress}%`, '0%');
+  setReportText('reportCompletedCourses', String(completedCourses), '0');
+  setReportText('reportCertificates', String(data.totalCertificados || 0), '0');
+
+  const inProgress = Math.max(0, totalCourses - completedCourses);
+  setReportText(
+    'reportManagementSummary',
+    `${data.nome || 'O aluno'} possui ${totalCourses} curso(s) matriculado(s), com ${completedCourses} conclusão(ões) e ${inProgress} curso(s) em andamento. O progresso médio atual é de ${progress}%.`
+  );
+
+  const visibleCourses = courses.slice(0, 8);
+  const reportCoursesBody = document.getElementById('reportCoursesBody');
+  const reportCoursesCaption = document.getElementById('reportCoursesCaption');
+  reportCoursesCaption.textContent = courses.length > visibleCourses.length
+    ? `Exibindo 8 de ${courses.length} cursos`
+    : `${courses.length} curso(s)`;
+
+  reportCoursesBody.innerHTML = visibleCourses.length
+    ? visibleCourses.map((course) => {
+      const courseProgress = Math.min(100, Math.max(0, course.percentual || 0));
+      const isCompleted = course.concluido || courseProgress >= 100;
+      return `
+        <tr>
+          <td><strong>${escapeHtml(course.titulo_curso || 'Curso sem título')}</strong></td>
+          <td>${escapeHtml(course.escola || 'Não informada')}</td>
+          <td><span class="report-course-progress">${courseProgress}%</span></td>
+          <td><span class="report-course-status ${isCompleted ? '' : 'pending'}">${isCompleted ? 'Concluído' : 'Em andamento'}</span></td>
+        </tr>`;
+    }).join('')
+    : '<tr><td colspan="4">Nenhum curso matriculado.</td></tr>';
+}
+
+function openStudentReport() {
+  if (!currentStudentDashboardData) return;
+  populateStudentReport(currentStudentDashboardData);
+  studentReportModal.classList.add('open');
+  studentReportModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('report-open');
+}
+
+function closeStudentReport() {
+  studentReportModal.classList.remove('open');
+  studentReportModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('report-open');
+}
+
+studentReportBtn?.addEventListener('click', openStudentReport);
+closeStudentReportBtn?.addEventListener('click', closeStudentReport);
+studentReportModal?.addEventListener('click', (event) => {
+  if (event.target === studentReportModal) closeStudentReport();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && studentReportModal?.classList.contains('open')) closeStudentReport();
+});
+downloadStudentReportBtn?.addEventListener('click', () => {
+  const previousTitle = document.title;
+  const safeName = String(currentStudentDashboardData?.nome || 'aluno').replace(/[^a-z0-9]+/gi, '-');
+  document.title = `relatorio-${safeName}`;
+  window.print();
+  setTimeout(() => { document.title = previousTitle; }, 500);
+});
 
 function switchDashboardSubtab(target) {
   const allBtns = [subtabCoursesBtn, subtabCertsBtn, subtabGamificationBtn, subtabAcademicBtn];

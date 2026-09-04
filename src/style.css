@@ -455,10 +455,12 @@ body:not(.auth-pending) > .login-screen { display: none; }
   box-shadow: var(--shadow-card);
   border: 1px solid rgba(232,233,235,0.8);
   display: flex;
-  align-items: flex-start;
-  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
   margin-bottom: 24px;
 }
+.profile-primary { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 18px; }
 .profile-avatar-box { flex-shrink: 0; }
 .profile-avatar-initials {
   width: 68px;
@@ -482,12 +484,57 @@ body:not(.auth-pending) > .login-screen { display: none; }
 .profile-info { flex: 1; min-width: 0; }
 .profile-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .profile-name { font-size: 20px; font-weight: 600; letter-spacing: -0.015em; }
-.profile-email { font-size: 14px; color: var(--graphite-muted); margin-bottom: 8px; }
-.profile-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--graphite-muted); margin-bottom: 2px; }
-.meta-item { display: inline-flex; align-items: center; gap: 4px; }
-.meta-item svg { flex-shrink: 0; }
-.meta-sep { color: var(--graphite-subtle); }
-.profile-actions { display: flex; gap: 8px; flex-shrink: 0; align-self: flex-start; }
+.profile-email { font-size: 14px; color: var(--graphite-muted); margin-bottom: 14px; }
+.profile-details-grid { display: grid; grid-template-columns: repeat(3, minmax(130px, auto)); gap: 10px 24px; }
+.profile-detail { min-width: 0; display: flex; flex-direction: column; gap: 1px; padding-left: 10px; border-left: 2px solid var(--graphite-border); }
+.profile-detail-label { color: var(--graphite-subtle); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.profile-detail strong { color: var(--graphite-muted); font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
+.profile-actions { display: flex; gap: 8px; flex-shrink: 0; align-self: center; }
+
+/* ---------- STUDENT REPORT ---------- */
+.report-modal { position: fixed; inset: 0; z-index: 500; display: none; padding: 24px; background: rgba(22,22,24,0.72); backdrop-filter: blur(6px); overflow-y: auto; }
+.report-modal.open { display: block; }
+.report-modal-dialog { width: min(100%, 1060px); margin: 0 auto; background: var(--surface-card); border-radius: 20px; box-shadow: var(--shadow-elevated); overflow: hidden; }
+.report-modal-header { min-height: 76px; padding: 16px 22px; border-bottom: 1px solid var(--graphite-border); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.report-modal-kicker { display: block; color: var(--coral); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; }
+.report-modal-header h2 { margin-top: 2px; font-size: 20px; }
+.report-modal-actions { display: flex; gap: 10px; }
+.report-preview-stage { padding: 30px; background: #dfe2e5; display: flex; justify-content: center; overflow-x: auto; }
+.student-report-page { position: relative; width: 794px; min-width: 794px; height: 1123px; overflow: hidden; background: white; color: #25272a; box-shadow: 0 14px 38px rgba(20,22,24,0.18); }
+.report-letterhead { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.report-document-content { position: relative; z-index: 1; height: 100%; padding: 116px 68px 62px; display: flex; flex-direction: column; }
+.report-document-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; padding-bottom: 18px; border-bottom: 2px solid #2e2e30; }
+.report-document-label { color: var(--coral); font-size: 9px; font-weight: 700; letter-spacing: 0.12em; }
+.report-document-header h1 { margin: 4px 0 2px; font-size: 25px; line-height: 1.1; letter-spacing: -0.025em; }
+.report-document-header p { color: #66686c; font-size: 11px; }
+.report-date-box { min-width: 105px; text-align: right; }
+.report-date-box span { display: block; color: #8b8d91; font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; }
+.report-date-box strong { font-size: 11px; }
+.report-section { margin-top: 22px; }
+.report-section h2 { margin-bottom: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.report-info-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid #e4e5e7; border-radius: 8px; overflow: hidden; }
+.report-info-grid > div { min-height: 54px; padding: 9px 10px; border-right: 1px solid #e4e5e7; border-bottom: 1px solid #e4e5e7; display: flex; flex-direction: column; gap: 3px; }
+.report-info-grid > div:nth-child(4n) { border-right: 0; }
+.report-info-grid > div:nth-last-child(-n+4) { border-bottom: 0; }
+.report-info-grid span { color: #8b8d91; font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.report-info-grid strong { font-size: 10px; line-height: 1.3; overflow-wrap: anywhere; }
+.report-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.report-kpi-grid > div { padding: 10px; border-radius: 8px; background: #f3f4f5; border-top: 3px solid var(--coral); }
+.report-kpi-grid strong { display: block; font-size: 20px; line-height: 1; }
+.report-kpi-grid span { display: block; margin-top: 5px; color: #77797d; font-size: 8px; text-transform: uppercase; }
+.report-management-summary { margin-top: 10px; padding: 9px 11px; background: #fff7ed; border-left: 3px solid var(--gold); color: #5d5140; font-size: 9px; line-height: 1.45; }
+.report-section-title-row { display: flex; align-items: center; justify-content: space-between; }
+.report-section-title-row span { color: #8b8d91; font-size: 8px; }
+.report-courses-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9px; }
+.report-courses-table th { padding: 7px 8px; background: #2e2e30; color: white; text-align: left; font-size: 8px; text-transform: uppercase; }
+.report-courses-table th:first-child { width: 39%; }
+.report-courses-table th:nth-child(2) { width: 27%; }
+.report-courses-table td { padding: 7px 8px; border-bottom: 1px solid #e7e8e9; vertical-align: top; }
+.report-course-progress { font-weight: 700; }
+.report-course-status { display: inline-block; padding: 2px 6px; border-radius: 999px; background: var(--success-subtle); color: var(--success); font-size: 8px; font-weight: 700; }
+.report-course-status.pending { background: var(--gold-subtle); color: #8a630f; }
+.report-document-footer { margin-top: auto; padding-top: 9px; border-top: 1px solid #dfe1e3; display: flex; justify-content: space-between; color: #8b8d91; font-size: 7px; }
+body.report-open { overflow: hidden; }
 
 /* ---------- KPI ROW ---------- */
 .kpi-row {
@@ -1824,7 +1871,25 @@ body:not(.auth-pending) > .login-screen { display: none; }
   .preview-file-bar { grid-template-columns: 1fr; }
   .courses-grid, .certs-grid { grid-template-columns: 1fr; }
   .search-form { flex-wrap: wrap; }
-  .profile-hero { flex-direction: column; }
+  .profile-hero { flex-direction: column; align-items: stretch; }
+  .profile-primary { flex-direction: column; }
+  .profile-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .profile-actions { width: 100%; }
   .profile-actions button { flex: 1; }
+  .report-modal { padding: 0; }
+  .report-modal-dialog { border-radius: 0; min-height: 100vh; }
+  .report-modal-header { align-items: flex-start; }
+  .report-modal-actions { flex-direction: column-reverse; }
+  .report-preview-stage { justify-content: flex-start; padding: 16px; }
+}
+
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  body * { visibility: hidden !important; }
+  .report-modal, .report-modal * { visibility: visible !important; }
+  .report-modal { display: block !important; position: absolute; inset: 0; padding: 0; background: white; overflow: visible; }
+  .report-modal-dialog { width: 210mm; margin: 0; border-radius: 0; box-shadow: none; }
+  .report-modal-header { display: none !important; }
+  .report-preview-stage { display: block; padding: 0; background: white; overflow: visible; }
+  .student-report-page { width: 210mm; min-width: 210mm; height: 297mm; box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }

@@ -1200,6 +1200,83 @@
     </footer>
   </div>
 
+  <div class="report-modal" id="studentReportModal" aria-hidden="true">
+    <div class="report-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+      <div class="report-modal-header">
+        <div>
+          <span class="report-modal-kicker">PRÉ-VISUALIZAÇÃO DO DOCUMENTO</span>
+          <h2 id="reportModalTitle">Relatório do Aluno</h2>
+        </div>
+        <div class="report-modal-actions">
+          <button type="button" class="btn-ghost" id="closeStudentReportBtn">Fechar</button>
+          <button type="button" class="btn-coral" id="downloadStudentReportBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Baixar Relatório
+          </button>
+        </div>
+      </div>
+      <div class="report-preview-stage">
+        <article class="student-report-page" id="studentReportPage">
+          <img src="./papel-timbrado.png" alt="" class="report-letterhead" aria-hidden="true">
+          <div class="report-document-content">
+            <header class="report-document-header">
+              <div>
+                <span class="report-document-label">RELATÓRIO DE DESENVOLVIMENTO</span>
+                <h1 id="reportStudentName">Nome do Aluno</h1>
+                <p id="reportStudentEmail">aluno@exemplo.com</p>
+              </div>
+              <div class="report-date-box">
+                <span>Emitido em</span>
+                <strong id="reportGeneratedAt">-</strong>
+              </div>
+            </header>
+
+            <section class="report-section">
+              <h2>Identificação e vínculo</h2>
+              <div class="report-info-grid">
+                <div><span>Escola(s)</span><strong id="reportSchools">-</strong></div>
+                <div><span>Status</span><strong id="reportStatus">-</strong></div>
+                <div><span>Departamento</span><strong id="reportDepartment">-</strong></div>
+                <div><span>Cargo</span><strong id="reportRole">-</strong></div>
+                <div><span>Unidade / Polo</span><strong id="reportUnit">-</strong></div>
+                <div><span>Código externo / ERP</span><strong id="reportExternalCode">-</strong></div>
+                <div><span>Data de cadastro</span><strong id="reportRegistrationDate">-</strong></div>
+                <div><span>Último acesso</span><strong id="reportLastAccess">-</strong></div>
+              </div>
+            </section>
+
+            <section class="report-section">
+              <h2>Resumo de aprendizagem</h2>
+              <div class="report-kpi-grid">
+                <div><strong id="reportTotalCourses">0</strong><span>Cursos matriculados</span></div>
+                <div><strong id="reportAverageProgress">0%</strong><span>Progresso médio</span></div>
+                <div><strong id="reportCompletedCourses">0</strong><span>Cursos concluídos</span></div>
+                <div><strong id="reportCertificates">0</strong><span>Certificados emitidos</span></div>
+              </div>
+              <p class="report-management-summary" id="reportManagementSummary"></p>
+            </section>
+
+            <section class="report-section report-courses-section">
+              <div class="report-section-title-row">
+                <h2>Cursos e progresso</h2>
+                <span id="reportCoursesCaption"></span>
+              </div>
+              <table class="report-courses-table">
+                <thead><tr><th>Curso</th><th>Escola</th><th>Progresso</th><th>Situação</th></tr></thead>
+                <tbody id="reportCoursesBody"></tbody>
+              </table>
+            </section>
+
+            <footer class="report-document-footer">
+              <span>Documento gerado pelo Consistem LMS com dados sincronizados da Hotscool.</span>
+              <span>Uso gerencial e confidencial.</span>
+            </footer>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 
