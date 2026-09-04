@@ -156,63 +156,45 @@
       <div id="dashboard" class="dashboard-360" style="display:none">
         <!-- Profile Hero -->
         <div class="profile-hero">
-          <div class="profile-avatar-box">
-            <div id="dashAvatar" class="profile-avatar-initials">--</div>
+          <div class="profile-column profile-avatar-column">
+            <div class="profile-avatar-box">
+              <div id="dashAvatar" class="profile-avatar-initials">--</div>
+            </div>
           </div>
-          <div class="profile-info">
-            <div class="profile-name-row">
-              <h2 id="dashStudentName" class="profile-name">Nome do Aluno</h2>
+
+          <div class="profile-column profile-identity-column">
+            <h2 id="dashStudentName" class="profile-name">Nome do Aluno</h2>
+            <p class="profile-email" id="dashStudentEmail">aluno@exemplo.com</p>
+            <div class="profile-status-row">
               <span class="status-pill success" id="dashStudentStatus">Matrícula Ativa</span>
               <span class="status-pill info" id="dashEmailConfirmTag" style="display:none">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                E-mail foi verificado
-              </span>
-            </div>
-            <p class="profile-email" id="dashStudentEmail">aluno@exemplo.com</p>
-            <div class="profile-meta">
-              <span class="meta-item" id="dashSchoolTag">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                  <path d="M6 12v5c3 3 9 3 12 0v-5" />
-                </svg>
-                <span id="dashSchoolText">Escola Principal</span>
-              </span>
-              <span class="meta-sep">+</span>
-              <span class="meta-item" id="dashOrgTag" style="display:none">
-                <span id="dashOrgText"></span>
-              </span>
-              <span class="meta-sep" id="dashOrgSep" style="display:none">+</span>
-              <span class="meta-item" id="dashCodeTag" style="display:none">
-                ERP: <span id="dashCodeText"></span>
-              </span>
-            </div>
-            <div class="profile-meta">
-              <span class="meta-item" id="dashCadTag" style="display:none">
-                Membro desde: <span id="dashCadText"></span>
-              </span>
-              <span class="meta-sep" id="dashCadSep" style="display:none">+</span>
-              <span class="meta-item">
-                Último acesso: <span id="dashAccessText">Hoje as 14:22</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12" /></svg>
+                E-mail verificado
               </span>
             </div>
           </div>
-          <div class="profile-actions">
-            <button type="button" class="btn-ghost" id="exportBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Exportar
-            </button>
-            <button type="button" class="btn-dark" id="erpAuditBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
-              Auditoria ERP
+
+          <div class="profile-column profile-access-column">
+            <div class="profile-access-item" id="dashSchoolTag">
+              <span>Escola(s)</span>
+              <strong id="dashSchoolText">Escola Principal</strong>
+            </div>
+            <div class="profile-access-item" id="dashCadTag" style="display:none">
+              <span>Membro desde</span>
+              <strong id="dashCadText">-</strong>
+            </div>
+            <div class="profile-access-item">
+              <span>Último acesso</span>
+              <strong id="dashAccessText">Nunca acessou</strong>
+            </div>
+            <span id="dashOrgTag" hidden><span id="dashOrgText"></span></span>
+            <span id="dashCodeTag" hidden><span id="dashCodeText"></span></span>
+          </div>
+
+          <div class="profile-column profile-actions">
+            <button type="button" class="btn-dark" id="studentReportBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+              Relatório do Aluno
             </button>
           </div>
         </div>
