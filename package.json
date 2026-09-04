@@ -15,7 +15,7 @@
     "vite": "^8.2.2"
   },
   "dependencies": {
-    "cookie": "^2.0.1",
+    "cookie": "^1.0.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
