@@ -977,6 +977,11 @@ const previewFileMeta = document.getElementById('previewFileMeta');
 const kpiTotalStudents = document.getElementById('kpiTotalStudents');
 const kpiTotalEnrollments = document.getElementById('kpiTotalEnrollments');
 const kpiUniqueCourses = document.getElementById('kpiUniqueCourses');
+const kpiTotalCourseIds = document.getElementById('kpiTotalCourseIds');
+const kpiCourseMappingMeta = document.getElementById('kpiCourseMappingMeta');
+const kpiCourseMappingText = document.getElementById('kpiCourseMappingText');
+const kpiCourseMappingIcon = document.getElementById('kpiCourseMappingIcon');
+const kpiAverageEnrollments = document.getElementById('kpiAverageEnrollments');
 const kpiMissingCourses = document.getElementById('kpiMissingCourses');
 const previewFilterInput = document.getElementById('previewFilterInput');
 const btnBackToUpload = document.getElementById('btnBackToUpload');
@@ -1054,6 +1059,43 @@ let csvSelectedFile = null;
 let csvLoadedSchools = [];
 let csvSchoolCoursesCache = new Map();
 let parsedStudentsData = [];
+
+function updatePreviewMetrics(students) {
+  const mappedCourseIds = new Set();
+  const missingCourseIds = new Set();
+  let totalEnrollments = 0;
+
+  students.forEach((student) => {
+    student.validCourses.forEach((course) => mappedCourseIds.add(course.id));
+    student.mappedCourses
+      .filter((course) => !course.found)
+      .forEach((course) => missingCourseIds.add(course.id));
+    totalEnrollments += student.validCourses.length;
+  });
+
+  const totalCourseIds = mappedCourseIds.size + missingCourseIds.size;
+  const mappingPercent = totalCourseIds > 0
+    ? Math.round((mappedCourseIds.size / totalCourseIds) * 100)
+    : 0;
+  const average = students.length > 0 ? (totalEnrollments / students.length).toFixed(2) : '0';
+
+  kpiTotalStudents.textContent = `${students.length} registros`;
+  kpiTotalEnrollments.textContent = `${totalEnrollments} Inscrições`;
+  kpiUniqueCourses.textContent = String(mappedCourseIds.size);
+  kpiTotalCourseIds.textContent = String(totalCourseIds);
+  kpiCourseMappingMeta.className = `preview-file-meta ${mappingPercent === 100 ? 'success' : 'warning'}`;
+  kpiCourseMappingIcon.innerHTML = mappingPercent === 100
+    ? '<polyline points="20 6 9 17 4 12" />'
+    : '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+  kpiCourseMappingText.textContent = totalCourseIds > 0
+    ? `${mappingPercent}% mapeados no LMS${missingCourseIds.size ? ` · ${missingCourseIds.size} não encontrado(s)` : ''}`
+    : 'Nenhum curso informado';
+  kpiAverageEnrollments.textContent = `Média de ${average} cursos por estudante`;
+  if (kpiMissingCourses) kpiMissingCourses.textContent = String(missingCourseIds.size);
+  if (confirmStudentCount) confirmStudentCount.textContent = String(students.length);
+  if (confirmEnrollCount) confirmEnrollCount.textContent = String(totalEnrollments);
+  btnExecuteText.textContent = `Confirmar e Iniciar Matrículas em Fila (${totalEnrollments})`;
+}
 
 async function ensureCsvSchoolsLoaded() {
   if (csvLoadedSchools.length > 0) return;
@@ -1315,21 +1357,13 @@ if (btnAnalyzeCsv) {
 
       if (previewFileName) previewFileName.textContent = csvSelectedFile?.name || 'CSV colado';
       if (previewFileMeta) previewFileMeta.textContent = `${result.schoolName}`;
-      kpiTotalStudents.textContent = `${result.stats.totalStudents} registros`;
-      kpiTotalEnrollments.textContent = `${result.stats.totalEnrollments} Inscricoes`;
-      kpiUniqueCourses.textContent = result.stats.uniqueCoursesCount;
-      if (kpiMissingCourses) kpiMissingCourses.textContent = result.stats.missingCoursesCount;
+      updatePreviewMetrics(parsedStudentsData);
 
       const defaultPassCount = parsedStudentsData.filter((s) => !s.senha).length;
       const customPassCount = parsedStudentsData.length - defaultPassCount;
       if (filterAllCount) filterAllCount.textContent = parsedStudentsData.length;
       if (filterDefaultCount) filterDefaultCount.textContent = defaultPassCount;
       if (filterCustomCount) filterCustomCount.textContent = customPassCount;
-      if (confirmStudentCount) confirmStudentCount.textContent = parsedStudentsData.length;
-      if (confirmEnrollCount) confirmEnrollCount.textContent = result.stats.totalEnrollments;
-
-      btnExecuteText.textContent = `Confirmar e Iniciar Matriculas em Fila (${result.stats.totalEnrollments})`;
-
       renderPreviewTable(parsedStudentsData);
       showCsvSection('preview');
     } catch (err) {
@@ -1390,13 +1424,7 @@ function renderPreviewTable(students) {
     btn.addEventListener('click', () => {
       const removeIdx = Number(btn.getAttribute('data-remove-idx'));
       parsedStudentsData.splice(removeIdx, 1);
-      let totalEnrollments = 0;
-      parsedStudentsData.forEach((s) => (totalEnrollments += s.validCourses.length));
-      kpiTotalStudents.textContent = `${parsedStudentsData.length} registros`;
-      kpiTotalEnrollments.textContent = `${totalEnrollments} Inscricoes`;
-      btnExecuteText.textContent = `Confirmar e Iniciar Matriculas em Fila (${totalEnrollments})`;
-      if (confirmStudentCount) confirmStudentCount.textContent = parsedStudentsData.length;
-      if (confirmEnrollCount) confirmEnrollCount.textContent = totalEnrollments;
+      updatePreviewMetrics(parsedStudentsData);
       renderPreviewTable(parsedStudentsData);
     });
   });

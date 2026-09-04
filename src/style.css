@@ -1426,6 +1426,7 @@ body.report-open { overflow: hidden; }
   color: var(--graphite-muted);
 }
 .preview-file-meta.success { color: var(--success); display: flex; align-items: center; gap: 4px; }
+.preview-file-meta.warning { color: #a36b00; display: flex; align-items: center; gap: 4px; }
 
 .preview-table-card {
   background: var(--surface-card);

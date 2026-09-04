@@ -777,8 +777,8 @@
               <label class="form-label">País dos Alunos <span class="required">*</span></label>
               <div class="select-wrapper">
                 <select id="csvPaisSelect">
-                  <option value="1" selected>Brasil (+55)</option>
-                  <option value="2">Estados Unidos (+1)</option>
+                  <option value="1" selected>Brasil</option>
+                  <option value="2">Estados Unidos</option>
                 </select>
               </div>
             </div>
@@ -881,23 +881,23 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              100% Validos (sem duplicidade CPF)
+              Registros lidos da planilha
             </span>
           </div>
           <div class="preview-file-item">
             <span class="preview-file-label">MAPEAMENTO NO LMS</span>
-            <span class="preview-file-value"><span id="kpiUniqueCourses">6</span> de 6</span>
-            <span class="preview-file-meta success">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <span class="preview-file-value"><span id="kpiUniqueCourses">0</span> de <span id="kpiTotalCourseIds">0</span></span>
+            <span class="preview-file-meta" id="kpiCourseMappingMeta">
+              <svg id="kpiCourseMappingIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              100% Mapeados no LMS
+              <span id="kpiCourseMappingText">Nenhum curso informado</span>
             </span>
           </div>
           <div class="preview-file-item">
             <span class="preview-file-label">VOLUME DE MATRICULAS</span>
             <span class="preview-file-value highlight" id="kpiTotalEnrollments">74 Inscricoes</span>
-            <span class="preview-file-meta">Media de 2.64 cursos por estudante</span>
+            <span class="preview-file-meta" id="kpiAverageEnrollments">Média de 0 cursos por estudante</span>
           </div>
         </div>
 
