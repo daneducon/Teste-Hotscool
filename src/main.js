@@ -20,6 +20,9 @@ const googleLoginButton = document.getElementById('googleLoginButton');
 const authenticatedUserName = document.getElementById('authenticatedUserName');
 const authenticatedUserEmail = document.getElementById('authenticatedUserEmail');
 const authenticatedUserAvatar = document.getElementById('authenticatedUserAvatar');
+const auditorName = document.getElementById('auditorName');
+const auditorEmail = document.getElementById('auditorEmail');
+const auditorAvatar = document.getElementById('auditorAvatar');
 const logoutBtn = document.getElementById('logoutBtn');
 
 function showLoginError(message) {
@@ -30,6 +33,8 @@ function showLoginError(message) {
 function showAuthenticatedApp(user) {
   authenticatedUserName.textContent = user.name || 'Usuario autorizado';
   authenticatedUserEmail.textContent = user.email || '';
+  auditorName.textContent = user.name || 'Usuário autorizado';
+  auditorEmail.textContent = user.email || '';
 
   if (user.picture) {
     const pictureUrl = safeHttpsUrl(user.picture);
@@ -37,9 +42,14 @@ function showAuthenticatedApp(user) {
     authenticatedUserAvatar.style.backgroundImage = pictureUrl ? `url("${pictureUrl}")` : '';
     authenticatedUserAvatar.style.backgroundSize = 'cover';
     authenticatedUserAvatar.style.backgroundPosition = 'center';
+    auditorAvatar.textContent = '';
+    auditorAvatar.style.backgroundImage = pictureUrl ? `url("${pictureUrl}")` : '';
+    auditorAvatar.style.backgroundSize = 'cover';
+    auditorAvatar.style.backgroundPosition = 'center';
   } else {
     const names = String(user.name || user.email || 'U').trim().split(/\s+/);
     authenticatedUserAvatar.textContent = names.map((name) => name[0]).join('').slice(0, 2).toUpperCase();
+    auditorAvatar.textContent = authenticatedUserAvatar.textContent;
   }
 
   document.body.classList.remove('auth-pending');
@@ -370,7 +380,7 @@ function showDashboard(data) {
   const registryExternalCode = document.getElementById('registryExternalCode');
   if (registryStudentStatus) registryStudentStatus.textContent = data.status || 'Nao informado';
   if (registryStudentId) registryStudentId.textContent = data.id ? `#${data.id}` : '-';
-  if (registryExternalCode) registryExternalCode.textContent = data.codigoExterno || 'Nao informado';
+  if (registryExternalCode) registryExternalCode.textContent = data.codigoExterno || 'Não informado';
 
   const avatarUrl = safeHttpsUrl(data.avatar);
   if (avatarUrl) {
@@ -463,7 +473,7 @@ function showDashboard(data) {
   dashDetailDept.textContent = data.departamento || 'Nao atribuido';
   dashDetailUnit.textContent = data.unidade || 'Nao informada';
   dashDetailRole.textContent = data.cargo || 'Nao informado';
-  dashDetailCode.textContent = data.codigoExterno || 'Nao informado';
+  dashDetailCode.textContent = data.codigoExterno || 'Não informado';
 
   if (Array.isArray(data.trilhas) && data.trilhas.length > 0) {
     dashDetailTrails.innerHTML = data.trilhas
@@ -1157,7 +1167,7 @@ if (btnAnalyzeCsv) {
     hideCsvFeedback();
     const pasteText = csvPasteTextarea?.value.trim();
     if (!csvSelectedFile && !pasteText) {
-      showCsvFeedback('error', 'Por favor, selecione um arquivo CSV ou cole o conteudo na area de texto.');
+      showCsvFeedback('error', 'Por favor, selecione um arquivo CSV ou cole o conteúdo na área de texto.');
       return;
     }
     setCsvAnalyzeLoading(true);
@@ -1393,7 +1403,7 @@ if (btnExecuteEnrollments) {
         const textReport = executionReport.map((r) => `${r.aluno} (${r.email}): ${r.status} ${r.matriculas ? `- ${r.matriculas} cursos` : `- Erro: ${r.erro}`}`).join('\n');
         navigator.clipboard.writeText(textReport).then(() => {
           btnCopyLog.textContent = 'Copiado!';
-          setTimeout(() => { btnCopyLog.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Baixar Relatorio de Execucao (.CSV)'; }, 2000);
+          setTimeout(() => { btnCopyLog.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Baixar Relatório de Execução (.CSV)'; }, 2000);
         });
       };
     }
