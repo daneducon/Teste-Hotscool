@@ -21,7 +21,8 @@
       <img src="./LMS.png" alt="Consistem LMS" class="login-brand-logo">
       <p class="login-eyebrow">GESTÃO ACADÊMICA</p>
       <h1>Aprendizado sob controle, do cadastro ao resultado.</h1>
-      <p>Consulte alunos, acompanhe o progresso e gerencie matrículas na Hotscool em um ambiente institucional seguro.</p>
+      <p>Consulte alunos, acompanhe o progresso e gerencie matrículas na Hotscool em um ambiente institucional seguro.
+      </p>
       <div class="login-brand-status"><span></span> Integração com a Hotscool protegida</div>
     </div>
     <div class="login-access-panel">
@@ -168,7 +169,9 @@
             <div class="profile-status-row">
               <span class="status-pill success" id="dashStudentStatus">Matrícula Ativa</span>
               <span class="status-pill info" id="dashEmailConfirmTag" style="display:none">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12" /></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
                 E-mail verificado
               </span>
             </div>
@@ -176,15 +179,15 @@
 
           <div class="profile-column profile-access-column">
             <div class="profile-access-item" id="dashSchoolTag">
-              <span>Escola(s)</span>
+              <span>Escola(s): </span>
               <strong id="dashSchoolText">Escola Principal</strong>
             </div>
             <div class="profile-access-item" id="dashCadTag" style="display:none">
-              <span>Membro desde</span>
+              <span>Membro desde: </span>
               <strong id="dashCadText">-</strong>
             </div>
             <div class="profile-access-item">
-              <span>Último acesso</span>
+              <span>Último acesso: </span>
               <strong id="dashAccessText">Nunca acessou</strong>
             </div>
             <span id="dashOrgTag" hidden><span id="dashOrgText"></span></span>
@@ -193,7 +196,12 @@
 
           <div class="profile-column profile-actions">
             <button type="button" class="btn-dark" id="studentReportBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="8" y1="13" x2="16" y2="13" />
+                <line x1="8" y1="17" x2="16" y2="17" />
+              </svg>
               Relatório do Aluno
             </button>
           </div>
@@ -995,7 +1003,8 @@
                     </svg>
                     Execução em Fila de Processamento
                   </h3>
-                  <p class="exec-sub">Sincronização sequencial com a API Hotscool v1 (taxa controlada de 250 ms por chamada
+                  <p class="exec-sub">Sincronização sequencial com a API Hotscool v1 (taxa controlada de 250 ms por
+                    chamada
                     contra rate limits).</p>
                 </div>
                 <div class="exec-realtime">
@@ -1112,7 +1121,8 @@
                 <span class="dispatch-label">Despacho de Primeiro Acesso:</span>
                 <span class="dispatch-value" id="execEmailsSent">0 enviados</span>
               </div>
-              <p class="dispatch-desc">Cada estudante recebe as credenciais e a notificação configuradas para o lote.</p>
+              <p class="dispatch-desc">Cada estudante recebe as credenciais e a notificação configuradas para o lote.
+              </p>
               <div class="dispatch-checks">
                 <div class="dispatch-check success">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1192,7 +1202,11 @@
         <div class="report-modal-actions">
           <button type="button" class="btn-ghost" id="closeStudentReportBtn">Fechar</button>
           <button type="button" class="btn-coral" id="downloadStudentReportBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
             Baixar Relatório
           </button>
         </div>
@@ -1244,7 +1258,14 @@
                 <span id="reportCoursesCaption"></span>
               </div>
               <table class="report-courses-table">
-                <thead><tr><th>Curso</th><th>Escola</th><th>Progresso</th><th>Situação</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Curso</th>
+                    <th>Escola</th>
+                    <th>Progresso</th>
+                    <th>Situação</th>
+                  </tr>
+                </thead>
                 <tbody id="reportCoursesBody"></tbody>
               </table>
             </section>
