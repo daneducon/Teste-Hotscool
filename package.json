@@ -1,7 +1,7 @@
 {
-  "name": "dashboard-alunos-hotscool",
+  "name": "consistem-lms",
   "version": "1.0.0",
-  "description": "Dashboard de consulta de alunos Hotscool",
+  "description": "Consistem LMS - gestão de alunos e matrículas Hotscool",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"node --watch server.js\" \"vite\"",

@@ -41,8 +41,8 @@ export async function createSessionToken(user) {
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(user.sub)
-    .setIssuer('hotscool-manager')
-    .setAudience('hotscool-manager')
+    .setIssuer('consistem-lms')
+    .setAudience('consistem-lms')
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DURATION_SECONDS}s`)
     .sign(secret);
@@ -78,8 +78,8 @@ export async function getSession(req) {
 
   try {
     const { payload } = await jwtVerify(token, secret, {
-      issuer: 'hotscool-manager',
-      audience: 'hotscool-manager',
+      issuer: 'consistem-lms',
+      audience: 'consistem-lms',
     });
     return {
       id: payload.sub,

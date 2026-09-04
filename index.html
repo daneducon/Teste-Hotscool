@@ -9,12 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async></script>
   <link rel="stylesheet" href="/src/style.css">
-  <title>Hotscool Manager</title>
+  <title>Consistem LMS</title>
 </head>
 <body class="auth-pending">
   <section class="login-screen" id="loginScreen">
     <div class="login-brand-panel">
-      <div class="login-brand-mark">C</div>
+      <img src="./LMS.png" alt="Consistem LMS" class="login-brand-logo">
       <p class="login-eyebrow">GESTAO ACADEMICA</p>
       <h1>Aprendizado sob controle, do cadastro ao resultado.</h1>
       <p>Consulte alunos, acompanhe progresso e gerencie matriculas Hotscool em um ambiente institucional seguro.</p>
@@ -22,8 +22,8 @@
     </div>
     <div class="login-access-panel">
       <div class="login-card">
-        <div class="login-card-logo">H</div>
-        <span class="login-card-kicker">HOTSCOOL MANAGER</span>
+        <img src="./consistem_icon.png" alt="Consistem" class="login-card-logo-image">
+        <span class="login-card-kicker">CONSISTEM LMS</span>
         <h2>Acesso administrativo</h2>
         <p>Entre exclusivamente com uma conta Google autorizada pela organizacao.</p>
         <div class="google-login-button" id="googleLoginButton"></div>
@@ -40,8 +40,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-top">
       <div class="sidebar-logo">
-        <div class="logo-icon">C</div>
-        <span class="logo-text">CONSISTEM</span>
+        <img src="./consistem_icon.png" alt="Consistem" class="sidebar-logo-image">
       </div>
       <nav class="sidebar-nav">
         <button type="button" class="sidebar-btn active" data-sidebar="search" title="Consultar Aluno">
@@ -55,14 +54,6 @@
         </button>
       </nav>
     </div>
-    <div class="sidebar-bottom">
-      <button type="button" class="sidebar-btn" title="Configuracoes">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </button>
-      <button type="button" class="sidebar-btn" title="Ajuda">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      </button>
-    </div>
   </aside>
 
   <!-- MAIN CANVAS -->
@@ -70,10 +61,10 @@
     <!-- HEADER -->
     <header class="app-header">
       <div class="header-left">
-        <div class="header-brand">
-          <div class="brand-logo-sm">C</div>
-          <span class="brand-name">Hotscool Manager</span>
-        </div>
+        <span class="brand-name">Consistem LMS</span>
+      </div>
+      <div class="header-center">
+        <img src="./consistem.png" alt="Consistem" class="header-consistem-logo">
       </div>
       <div class="header-right">
         <div class="header-user">
@@ -623,9 +614,6 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Parametros Gerais do Lote</h3>
-              <button type="button" class="btn-icon" title="Configuracoes">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-              </button>
             </div>
             <p class="card-desc">Defina a escola de destino e as credenciais padrao aplicadas a este lote.</p>
 
@@ -792,7 +780,7 @@
 
           <div class="preview-confirmation">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <p><strong>Verificacao de Comunicacao e Disparo de E-mails:</strong> Ao confirmar, <span id="confirmStudentCount">28</span> estudantes receberao a notificacao de boas-vindas com seus respectivos links de primeiro acesso via Hotscool Manager. Os <strong><span id="confirmEnrollCount">74</span> registros de matricula</strong> serao gravados no banco de dados central com chave de sincronizacao no ERP Consistem.</p>
+            <p><strong>Verificacao de Comunicacao e Disparo de E-mails:</strong> Ao confirmar, <span id="confirmStudentCount">28</span> estudantes receberao a notificacao de boas-vindas com seus respectivos links de primeiro acesso via Consistem LMS. Os <strong><span id="confirmEnrollCount">74</span> registros de matricula</strong> serao gravados no banco de dados central com chave de sincronizacao no ERP Consistem.</p>
           </div>
         </div>
 
@@ -961,7 +949,7 @@
 
     <!-- FOOTER -->
     <footer class="app-footer">
-      <p>Hotscool Integration Manager &copy; 2026</p>
+      <p>Consistem LMS &copy; 2026</p>
     </footer>
   </div>
 
