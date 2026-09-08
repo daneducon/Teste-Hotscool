@@ -1,0 +1,11 @@
+title = "Consistem LMS Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Synthetic AUTH_SECRET used by historical unit tests"
+regexTarget = "secret"
+regexes = [
+  '''0123456789abcdefghijklmnopqrstuv''',
+]
