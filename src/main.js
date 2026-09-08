@@ -1,4 +1,4 @@
-import { initializeLessonPlan } from './lesson-plan.js';
+import { initializeLessonPlan, refreshLessonPlanPreview } from './lesson-plan.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -167,6 +167,7 @@ function switchTab(target) {
 
   if (target === 'register') ensureSchoolsLoaded();
   else if (target === 'csv') ensureCsvSchoolsLoaded();
+  else if (target === 'lesson') requestAnimationFrame(refreshLessonPlanPreview);
 }
 
 sidebarBtns.forEach((btn) => {

@@ -239,6 +239,7 @@ function paginateLessonPreview() {
   const source = root?.querySelector('.lesson-document-source');
   const sourceFlow = source?.querySelector('.lesson-page-flow');
   if (!source || !sourceFlow) return;
+  if (!source.getClientRects().length || source.clientWidth === 0) return;
   const blocks = [...sourceFlow.children];
   const pages = document.createElement('div');
   pages.className = 'lesson-document-pages';
@@ -470,4 +471,9 @@ export function initializeLessonPlan() {
       } catch { setFeedback('error', 'Informe uma URL HTTPS pública e válida.'); }
     }
   });
+}
+
+export function refreshLessonPlanPreview() {
+  if (!root || state.step !== 3) return;
+  render();
 }
