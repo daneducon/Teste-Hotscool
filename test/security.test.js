@@ -31,6 +31,13 @@ test('authorization policy is default-deny and scopes schools', () => {
 
   assert.equal(getAuthorization('unknown@example.com'), null);
   assert.deepEqual(getAuthorization('VIEWER@example.com').permissions, ['courses:read', 'students:read']);
+  process.env.AUTHORIZATION_POLICY = JSON.stringify({
+    'operator@example.com': { role: 'operator', schools: [0] },
+  });
+  assert.equal(getAuthorization('operator@example.com').permissions.includes('plans:generate'), true);
+  process.env.AUTHORIZATION_POLICY = JSON.stringify({
+    'viewer@example.com': { role: 'viewer', schools: [0, 2] },
+  });
   assert.deepEqual(
     filterAuthorizedSchools([{ id: 0 }, { id: 1 }, { id: 2 }], {
       authorization: getAuthorization('viewer@example.com'),

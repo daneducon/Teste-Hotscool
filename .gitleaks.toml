@@ -9,3 +9,10 @@ regexTarget = "secret"
 regexes = [
   '''0123456789abcdefghijklmnopqrstuv''',
 ]
+
+[[allowlists]]
+description = "Public localStorage identifier detected as a generic API key"
+regexTarget = "secret"
+regexes = [
+  '''consistem_lms_lesson_plan_v1''',
+]

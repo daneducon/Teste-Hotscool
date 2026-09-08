@@ -41,9 +41,9 @@ test('lesson workbook parser recognizes MATRIZ and GERCON sheets', async () => {
   const bytes = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
   const file = { name: 'plano.xlsx', size: bytes.byteLength, arrayBuffer: async () => bytes };
 
-  const result = await parseLessonWorkbook(file);
+  const result = await parseLessonWorkbook(file, [{ code: 'ABC020', name: 'Validação de dados' }]);
   assert.equal(result.metadata.nomeCurso, 'Formação ERP');
   assert.equal(result.units.length, 1);
   assert.deepEqual(result.units[0].objetivos, ['Configurar parâmetros', 'Validar dados']);
-  assert.deepEqual(result.units[0].programas, ['ABC010 - Cadastro', 'ABC020']);
+  assert.deepEqual(result.units[0].programas, ['ABC010 - Cadastro', 'ABC020 - Validação de dados']);
 });

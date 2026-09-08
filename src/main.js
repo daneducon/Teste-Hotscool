@@ -129,6 +129,7 @@ async function initializeAuthentication() {
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
+    localStorage.removeItem('consistem_lms_lesson_plan_v1');
     await fetch('/api/auth/logout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

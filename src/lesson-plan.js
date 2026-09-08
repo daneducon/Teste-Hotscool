@@ -10,7 +10,7 @@ import {
   parseLessonWorkbook,
 } from './lesson-plan-utils.js';
 
-const STORAGE_KEY = 'consistem_lms_lesson_plan_v1';
+const STORAGE_ID = 'consistem_lms_lesson_plan_v1';
 
 function createDefaultPlan() {
   return {
@@ -41,7 +41,7 @@ function escapeHtml(value) {
 function loadState() {
   const fallback = { step: 1, plan: createDefaultPlan(), analysis: null, fileName: '', pdfDownloaded: false, showUrl: false };
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    const saved = JSON.parse(localStorage.getItem(STORAGE_ID) || 'null');
     if (!saved?.plan || !Array.isArray(saved.plan.unidades)) return fallback;
     return { ...fallback, ...saved, plan: { ...fallback.plan, ...saved.plan, wordpressData: { ...fallback.plan.wordpressData, ...saved.plan.wordpressData } } };
   } catch {
@@ -53,9 +53,20 @@ let root;
 let state = loadState();
 let busy = false;
 let feedback = null;
+let programCatalogPromise;
+
+async function getProgramCatalog() {
+  if (!programCatalogPromise) {
+    programCatalogPromise = fetch('/api/lesson-programs')
+      .then((response) => response.ok ? response.json() : { programs: [] })
+      .then((data) => Array.isArray(data.programs) ? data.programs : [])
+      .catch(() => []);
+  }
+  return programCatalogPromise;
+}
 
 function saveState() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+  try { localStorage.setItem(STORAGE_ID, JSON.stringify(state)); } catch {}
 }
 
 function setFeedback(type, message) {
@@ -206,7 +217,7 @@ function applyImportedResult(result) {
 
 async function handleFile(file) {
   busy = true; feedback = null; render();
-  try { applyImportedResult(await parseLessonWorkbook(file)); }
+  try { applyImportedResult(await parseLessonWorkbook(file, await getProgramCatalog())); }
   catch (error) { feedback = { type: 'error', message: error.message || 'Não foi possível analisar a planilha.' }; }
   finally { busy = false; render(); }
 }
@@ -265,10 +276,17 @@ async function handleAction(button) {
   const action = button.dataset.action;
   if (action === 'next') return nextStep();
   if (action === 'back') { state.step = Math.max(1, state.step - 1); feedback = null; saveState(); return render(); }
-  if (action === 'step') { state.step = Number(button.dataset.step); feedback = null; saveState(); return render(); }
+  if (action === 'step') {
+    const requestedStep = Number(button.dataset.step);
+    if (requestedStep >= 3 && !state.plan.nomeCurso.trim()) {
+      state.step = 2;
+      return setFeedback('error', 'Informe o nome oficial do curso antes da pré-visualização.');
+    }
+    state.step = requestedStep; feedback = null; saveState(); return render();
+  }
   if (action === 'reset') {
     if (!confirm('Recomeçar e apagar somente o rascunho deste plano de aula?')) return;
-    localStorage.removeItem(STORAGE_KEY); state = { step: 1, plan: createDefaultPlan(), analysis: null, fileName: '', pdfDownloaded: false, showUrl: false }; feedback = null; return render();
+    localStorage.removeItem(STORAGE_ID); state = { step: 1, plan: createDefaultPlan(), analysis: null, fileName: '', pdfDownloaded: false, showUrl: false }; feedback = null; return render();
   }
   if (action === 'template') return downloadLessonTemplate();
   if (action === 'sample') { applyImportedResult(samplePlan()); return render(); }
@@ -287,8 +305,8 @@ async function handleAction(button) {
     return;
   }
   if (action === 'show-url') { state.showUrl = true; saveState(); return render(); }
-  if (action === 'hide-url') { state.showUrl = false; saveState(); return render(); }
-  if (action === 'xml') { downloadLessonXml(state.plan); localStorage.removeItem(STORAGE_KEY); return setFeedback('success', 'XML WordPress gerado como rascunho.'); }
+  if (action === 'hide-url') { state.showUrl = false; state.pdfDownloaded = false; saveState(); return render(); }
+  if (action === 'xml') { downloadLessonXml(state.plan); localStorage.removeItem(STORAGE_ID); return setFeedback('success', 'XML WordPress gerado como rascunho.'); }
 }
 
 export function initializeLessonPlan() {

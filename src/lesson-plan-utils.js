@@ -40,11 +40,13 @@ function splitValues(value) {
   return String(value ?? '').split(/[,;|\n\r]+/).map((item) => item.trim()).filter(Boolean);
 }
 
-function cleanPrograms(value) {
+function cleanPrograms(value, programMap) {
   return [...new Set(splitValues(value).filter((item) => !/^(n\/?a|n\/?d|-|nenhum)$/i.test(item)).map((item) => {
     const cleaned = item.replace(/^[%@#$\[({]+/, '').replace(/[\])}]+$/, '').trim();
     const match = cleaned.match(/^([a-z0-9_-]{3,20})\s*[-:–—]\s*(.+)$/i);
-    return match ? `${match[1].toUpperCase()} - ${match[2].trim()}` : cleaned.toUpperCase();
+    if (match) return `${match[1].toUpperCase()} - ${match[2].trim()}`;
+    const code = cleaned.toUpperCase();
+    return programMap.get(normalizeLessonKey(code)) ? `${code} - ${programMap.get(normalizeLessonKey(code))}` : code;
   }))];
 }
 
@@ -53,10 +55,10 @@ function parseMetadata(rows) {
   const writers = [];
   const fields = [
     ['nomeCurso', ['curso', 'nomedocurso', 'titulodocurso', 'treinamento']],
+    ['compatibilidadeErp', ['compatibilidadeerp', 'versaoerp', 'versaoconsistemerp', 'consistemerp']],
+    ['compatibilidadeComponentes', ['compatibilidadecomponentes', 'versaocomponentes']],
     ['versaoCurso', ['versaodocurso', 'versaocurso', 'versao']],
     ['publicacao', ['publicacao', 'mesano', 'periodo']],
-    ['compatibilidadeErp', ['compatibilidadeerp', 'versaoerp', 'consistemerp']],
-    ['compatibilidadeComponentes', ['compatibilidadecomponentes', 'versaocomponentes']],
     ['cargaHoraria', ['cargahoraria', 'duracao', 'horastotais']],
     ['modalidade', ['modalidade', 'formato']],
     ['objetivoGeral', ['objetivogeral', 'objetivodocurso']],
@@ -69,7 +71,7 @@ function parseMetadata(rows) {
       if (!key) return;
       const value = row.slice(index + 1).map(String).map((item) => item.trim()).find(Boolean) || '';
       fields.forEach(([field, aliases]) => {
-        if (!metadata[field] && aliases.some((alias) => key === alias || key.startsWith(alias))) {
+        if (!metadata[field] && aliases.some((alias) => key === alias || (alias.length > 8 && key.startsWith(alias)))) {
           metadata[field] = value;
         }
       });
@@ -84,10 +86,13 @@ function parseMetadata(rows) {
   return { metadata, writers };
 }
 
-export async function parseLessonWorkbook(file) {
+export async function parseLessonWorkbook(file, programCatalog = []) {
   if (!file || file.size > 10 * 1024 * 1024) throw new Error('Envie uma planilha de até 10 MB.');
   if (!/\.(xlsx|xls|csv|txt)$/i.test(file.name)) throw new Error('Use um arquivo XLSX, XLS, CSV ou TXT.');
   const XLSX = await import('xlsx');
+  const programMap = new Map(programCatalog.map((program) => [
+    normalizeLessonKey(program.code || program.Código), String(program.name || program.Nome || '').trim(),
+  ]).filter(([code, name]) => code && name));
   const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: false });
   if (!workbook.SheetNames.length || workbook.SheetNames.length > 30) {
     throw new Error('A planilha deve conter entre 1 e 30 abas.');
@@ -129,7 +134,7 @@ export async function parseLessonWorkbook(file) {
     if (!currentTitle) return;
     const objective = objectiveColumn >= 0 ? String(row[objectiveColumn] ?? '').trim() : '';
     const descriptions = descriptionColumn >= 0 ? splitValues(row[descriptionColumn]) : [];
-    const programs = programColumn >= 0 ? cleanPrograms(row[programColumn]) : [];
+    const programs = programColumn >= 0 ? cleanPrograms(row[programColumn], programMap) : [];
     let unit = units.find((item) => item.tituloUnidade === currentTitle);
     if (!unit) {
       unit = { index: units.length + 1, tituloUnidade: currentTitle, objetivos: [], descricaoOA: [], programas: [] };
