@@ -7,6 +7,7 @@ import authConfigHandler from './api/auth/config.js';
 import authGoogleHandler from './api/auth/google.js';
 import authSessionHandler from './api/auth/session.js';
 import authLogoutHandler from './api/auth/logout.js';
+import lessonAiHandler from './api/lesson-ai.js';
 
 const app = express();
 const PORT = 3001;
@@ -60,6 +61,7 @@ app.all('/api/auth/config', authConfigHandler);
 app.all('/api/auth/google', authGoogleHandler);
 app.all('/api/auth/session', authSessionHandler);
 app.all('/api/auth/logout', authLogoutHandler);
+app.all('/api/lesson-ai', lessonAiHandler);
 
 app.listen(PORT, () => {
   console.log(`Backend rodando em http://localhost:${PORT}`);

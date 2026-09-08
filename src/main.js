@@ -1,3 +1,5 @@
+import { initializeLessonPlan } from './lesson-plan.js';
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function escapeHtml(value) {
@@ -148,6 +150,7 @@ const tabNames = {
   search: 'Consulta do Aluno',
   register: 'Gestao de Alunos / Cadastro & Matricula Individual',
   csv: 'Matricula em Lote (CSV)',
+  lesson: 'Gerador de Plano de Aula',
 };
 
 function switchTab(target) {
@@ -1630,3 +1633,4 @@ if (enrollNewCourseBtn) {
 }
 
 initializeAuthentication();
+initializeLessonPlan();

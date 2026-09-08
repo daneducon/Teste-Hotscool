@@ -6,7 +6,7 @@ const SESSION_DURATION_SECONDS = 8 * 60 * 60;
 const EXAMPLE_SECRET = 'gere-uma-chave-aleatoria-com-pelo-menos-32-caracteres';
 const ROLE_PERMISSIONS = {
   viewer: ['courses:read', 'students:read'],
-  operator: ['courses:read', 'students:read', 'students:write'],
+  operator: ['courses:read', 'students:read', 'students:write', 'plans:generate'],
   admin: ['*'],
 };
 
