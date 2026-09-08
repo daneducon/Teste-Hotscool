@@ -61,6 +61,8 @@ test('auth configuration rejects missing and documented secrets', () => {
   assert.equal(isAuthConfigured(), false);
   process.env.AUTH_SECRET = '';
   assert.equal(isAuthConfigured(), false);
+  process.env.AUTH_SECRET = 'abcd'.repeat(8);
+  assert.equal(isAuthConfigured(), false);
   process.env.AUTH_SECRET = '0123456789abcdefghijklmnopqrstuv';
   assert.equal(isAuthConfigured(), true);
 });
