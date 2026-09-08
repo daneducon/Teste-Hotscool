@@ -87,7 +87,7 @@
 .lesson-program-chips span { padding: 4px 8px; border-radius: var(--r-sm); background: var(--surface-container); color: var(--graphite-muted); font-size: 10px; }
 .lesson-preview-toolbar { margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .lesson-preview-stage { padding: 32px; overflow-x: auto; display: flex; justify-content: center; border: 1px solid var(--graphite-border); border-radius: var(--r-lg); background: var(--surface-container); }
-.lesson-document { width: 794px; min-width: 794px; min-height: 1123px; padding: 116px 68px 76px; background: white url('/papel-timbrado.png') top center / 794px auto no-repeat; box-shadow: var(--shadow-float); font-size: 13px; }
+.lesson-document { width: 794px; min-width: 794px; min-height: 1123px; padding: 116px 68px 76px; background-color: white; background-image: url('/fundo_papel.png'); background-position: top center; background-size: 794px 1123px; background-repeat: repeat-y; box-shadow: var(--shadow-float); font-size: 13px; }
 .lesson-document header { padding-bottom: 18px; border-bottom: 2px solid var(--graphite); }
 .lesson-document header > span { color: var(--coral); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
 .lesson-document header h2 { margin: 6px 0; font-size: 24px; line-height: 1.12; }

@@ -192,64 +192,51 @@ function safeFilename(value) {
 }
 
 export async function downloadLessonPdf(plan) {
-  const { jsPDF } = await import('jspdf');
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const width = 210;
-  const bottom = 278;
-  let y = 34;
-  let background = null;
-  try {
-    const response = await fetch('/papel-timbrado.png');
-    if (response.ok) {
-      const blob = await response.blob();
-      background = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
-    }
-  } catch {}
-  const drawBackground = () => { if (background) doc.addImage(background, 'PNG', 0, 0, 210, 297); };
-  const pageBreak = (height = 12) => {
-    if (y + height > bottom) { doc.addPage(); drawBackground(); y = 34; }
-  };
-  const text = (value, size = 10, bold = false, color = [46, 46, 48], indent = 0) => {
-    doc.setFont('helvetica', bold ? 'bold' : 'normal');
-    doc.setFontSize(size);
-    doc.setTextColor(...color);
-    const lines = doc.splitTextToSize(String(value || ''), 170 - indent);
-    pageBreak(lines.length * (size * 0.45) + 3);
-    doc.text(lines, 20 + indent, y);
-    y += lines.length * (size * 0.45) + 3;
-  };
-  drawBackground();
-  text(plan.nomeCurso || 'Plano de Ensino', 17, true);
-  y += 2;
-  [
-    ['Versão do curso', plan.versaoCurso], ['Publicação', plan.publicacao],
-    ['Compatibilidade', formatLessonCompatibility(plan)],
-    ['Carga horária', `${plan.cargaHoraria || '0'} horas`], ['Modalidade', plan.modalidade],
-  ].forEach(([label, value]) => text(`${label}: ${value || '-'}`, 10));
-  y += 5;
-  if (plan.objetivoGeral) { text('OBJETIVO GERAL', 11, true); text(plan.objetivoGeral, 10); y += 3; }
-  if (plan.publicoAlvo) { text('PÚBLICO-ALVO', 11, true); text(plan.publicoAlvo, 10); y += 4; }
-  text('Conteúdo', 16, true, [223, 82, 65]);
-  plan.unidades.forEach((unit, index) => {
-    pageBreak(28);
-    text(`Aula ${unit.index || index + 1} | ${unit.tituloUnidade}`, 12, true);
-    text('Ao fim desta aula, o usuário deve conseguir:', 9, false, [100, 100, 102]);
-    unit.objetivos.forEach((objective) => text(`• ${objective}`, 10, false, [46, 46, 48], 3));
-    if (unit.programas.length) {
-      text('Programas utilizados', 10, true);
-      unit.programas.forEach((program) => text(program, 9, false, [46, 46, 48], 3));
-    }
-    y += 4;
+  const documentElement = document.querySelector('#lessonPlanApp .lesson-document');
+  if (!documentElement) throw new Error('Pré-visualização do plano não encontrada.');
+
+  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+    import('html2canvas'),
+    import('jspdf'),
+    document.fonts?.ready || Promise.resolve(),
+  ]);
+  const backgroundUrl = getComputedStyle(documentElement).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/)?.[1];
+  if (backgroundUrl) {
+    await Promise.race([
+      new Promise((resolve) => {
+        const image = new Image();
+        image.onload = resolve;
+        image.onerror = resolve;
+        image.src = backgroundUrl;
+      }),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
+  }
+  const sourceCanvas = await html2canvas(documentElement, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
   });
-  text('Conteudista(s)', 14, true, [223, 82, 65]);
-  plan.conteudistas.forEach((writer) => {
-    text(writer.nome || 'Conteudista responsável', 10, true);
-    if (writer.biografia) text(writer.biografia, 9);
-  });
+  const pageHeightPixels = Math.round(sourceCanvas.width * (1123 / 794));
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+
+  for (let offset = 0, page = 0; offset < sourceCanvas.height; offset += pageHeightPixels, page += 1) {
+    if (page > 0) doc.addPage();
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width = sourceCanvas.width;
+    sliceCanvas.height = pageHeightPixels;
+    const context = sliceCanvas.getContext('2d');
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+    context.drawImage(
+      sourceCanvas,
+      0, offset, sourceCanvas.width, Math.min(pageHeightPixels, sourceCanvas.height - offset),
+      0, 0, sourceCanvas.width, Math.min(pageHeightPixels, sourceCanvas.height - offset),
+    );
+    doc.addImage(sliceCanvas.toDataURL('image/jpeg', 0.94), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+  }
+
   doc.save(`Plano_Ensino_${safeFilename(plan.nomeCurso)}_v${safeFilename(plan.versaoCurso || '1.0')}.pdf`);
 }
 
