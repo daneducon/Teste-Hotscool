@@ -55,6 +55,17 @@ let state = loadState();
 let busy = false;
 let feedback = null;
 let programCatalogPromise;
+let aiLoading = false;
+let aiMessageTimer;
+let aiMessageIndex = 0;
+
+const AI_LOADING_MESSAGES = [
+  'Analisando a estrutura pedagógica...',
+  'Organizando objetivos e referências...',
+  'Aplicando as diretrizes da Consistem...',
+  'Revisando clareza e consistência...',
+  'Preparando o conteúdo final...',
+];
 
 async function getProgramCatalog() {
   if (!programCatalogPromise) {
@@ -100,6 +111,37 @@ function setFeedback(type, message) {
 
 function feedbackHtml() {
   return feedback ? `<div class="lesson-feedback ${feedback.type}" role="status">${escapeHtml(feedback.message)}</div>` : '';
+}
+
+function aiLoadingHtml() {
+  if (!aiLoading) return '';
+  return `<div class="lesson-ai-overlay" role="dialog" aria-modal="true" aria-labelledby="lessonAiLoadingTitle">
+    <div class="lesson-ai-modal">
+      <div class="lesson-ai-spinner" aria-hidden="true"></div>
+      <span class="lesson-kicker">REDAÇÃO ASSISTIDA</span>
+      <h2 id="lessonAiLoadingTitle">Gerando conteúdo com IA</h2>
+      <p id="lessonAiLoadingMessage" aria-live="polite">${AI_LOADING_MESSAGES[aiMessageIndex]}</p>
+      <small>Aguarde nesta tela. O conteúdo será exibido assim que estiver pronto.</small>
+    </div>
+  </div>`;
+}
+
+function startAiLoading() {
+  aiLoading = true;
+  aiMessageIndex = 0;
+  render();
+  clearInterval(aiMessageTimer);
+  aiMessageTimer = setInterval(() => {
+    aiMessageIndex = (aiMessageIndex + 1) % AI_LOADING_MESSAGES.length;
+    const message = document.getElementById('lessonAiLoadingMessage');
+    if (message) message.textContent = AI_LOADING_MESSAGES[aiMessageIndex];
+  }, 2000);
+}
+
+function stopAiLoading() {
+  clearInterval(aiMessageTimer);
+  aiMessageTimer = null;
+  aiLoading = false;
 }
 
 function renderStepper() {
@@ -256,7 +298,7 @@ function renderWordPress() {
 
 function render() {
   if (!root) return;
-  root.innerHTML = `<div class="lesson-toolbar"><div><span class="lesson-draft-dot"></span> Rascunho salvo neste navegador</div>${state.plan.unidades.length ? '<button type="button" class="btn-ghost-sm danger" data-action="reset">Recomeçar</button>' : ''}</div>${renderStepper()}<div class="lesson-step-content">${state.step === 1 ? renderUpload() : state.step === 2 ? renderReview() : state.step === 3 ? renderPreview() : renderWordPress()}</div>`;
+  root.innerHTML = `<div class="lesson-toolbar"><div><span class="lesson-draft-dot"></span> Rascunho salvo neste navegador</div>${state.plan.unidades.length ? '<button type="button" class="btn-ghost-sm danger" data-action="reset">Recomeçar</button>' : ''}</div>${renderStepper()}<div class="lesson-step-content">${state.step === 1 ? renderUpload() : state.step === 2 ? renderReview() : state.step === 3 ? renderPreview() : renderWordPress()}</div>${aiLoadingHtml()}`;
   if (state.step === 3) requestAnimationFrame(paginateLessonPreview);
 }
 
@@ -313,8 +355,9 @@ function updateProgram(code, name) {
 }
 
 async function callLessonAi(action, index) {
-  if (!confirm('Os dados pedagógicos deste plano serão enviados ao OpenRouter para geração por IA. Deseja continuar?')) return;
-  busy = true; feedback = { type: 'info', message: 'Gerando conteúdo com IA...' }; render();
+  busy = true;
+  feedback = null;
+  startAiLoading();
   const objectives = state.plan.unidades.flatMap((unit) => unit.objetivos).filter(Boolean);
   const descriptions = state.plan.unidades.flatMap((unit) => unit.descricaoOA || []).filter(Boolean);
   const body = { action, course: state.plan.nomeCurso || 'Curso Consistem ERP', objectives, descriptions };
@@ -330,7 +373,7 @@ async function callLessonAi(action, index) {
     feedback = { type: 'success', message: 'Conteúdo gerado. Revise antes de continuar.' };
     saveState();
   } catch (error) { feedback = { type: 'error', message: error.message }; }
-  finally { busy = false; render(); }
+  finally { busy = false; stopAiLoading(); render(); }
 }
 
 function nextStep() {

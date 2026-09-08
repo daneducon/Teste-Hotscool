@@ -65,6 +65,14 @@
 .lesson-label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .lesson-ai-button { padding: 5px 8px; border: 0; border-radius: var(--r-sm); background: var(--coral-surface); color: var(--coral); font: 600 11px var(--font); cursor: pointer; }
 .lesson-ai-button:hover { background: var(--coral-subtle); }
+.lesson-ai-overlay { position: fixed; inset: 0; z-index: 1000; padding: 24px; display: grid; place-items: center; background: rgba(25,28,29,.56); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.lesson-ai-modal { width: min(100%, 430px); padding: 42px 36px; display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(255,255,255,.7); border-radius: 24px; background: var(--surface-card); box-shadow: var(--shadow-elevated); text-align: center; }
+.lesson-ai-modal .lesson-kicker { margin-top: 24px; }
+.lesson-ai-modal h2 { margin: 8px 0 12px; font-size: 24px; line-height: 1.1; letter-spacing: -.02em; }
+.lesson-ai-modal p { min-height: 42px; color: var(--graphite-muted); font-size: 14px; line-height: 1.5; }
+.lesson-ai-modal small { max-width: 320px; margin-top: 18px; color: var(--graphite-subtle); font-size: 11px; line-height: 1.5; }
+.lesson-ai-spinner { width: 58px; height: 58px; border: 5px solid var(--coral-subtle); border-top-color: var(--coral); border-right-color: var(--gold); border-radius: 50%; animation: lesson-ai-spin .85s linear infinite; }
+@keyframes lesson-ai-spin { to { transform: rotate(360deg); } }
 .lesson-compat-preview { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid var(--graphite-border); border-radius: var(--r-md); background: var(--surface-sunken); }
 .lesson-compat-preview span { color: var(--graphite-muted); font-size: 11px; text-transform: uppercase; }
 .lesson-compat-preview strong { font-size: 13px; text-align: right; }
@@ -136,6 +144,8 @@
   .lesson-step { flex: none; width: 100%; }
   .lesson-step-line { width: 1px; height: 12px; margin: 0 0 0 19px; flex-basis: 12px; }
   .lesson-card { padding: 20px 16px; }
+  .lesson-ai-overlay { padding: 16px; }
+  .lesson-ai-modal { padding: 34px 22px; border-radius: 20px; }
   .lesson-section-heading.split, .lesson-preview-toolbar { align-items: stretch; flex-direction: column; }
   .lesson-upload-card .lesson-inline-actions { flex-direction: column; }
   .lesson-analysis-metrics { grid-template-columns: 1fr; }
