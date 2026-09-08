@@ -51,13 +51,13 @@
         <img src="./consistem_icon.png" alt="Consistem" class="sidebar-logo-image">
       </div>
       <nav class="sidebar-nav">
-        <button type="button" class="sidebar-btn active" data-sidebar="search" title="Consultar Aluno">
+        <button type="button" class="sidebar-btn active" data-sidebar="search" title="Consultar Aluno" aria-label="Consultar aluno">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.3-4.3" />
           </svg>
         </button>
-        <button type="button" class="sidebar-btn" data-sidebar="register" title="Cadastro Individual">
+        <button type="button" class="sidebar-btn" data-sidebar="register" title="Cadastro Individual" aria-label="Cadastro individual">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
@@ -65,7 +65,7 @@
             <line x1="22" x2="16" y1="11" y2="11" />
           </svg>
         </button>
-        <button type="button" class="sidebar-btn" data-sidebar="csv" title="Matricula em Lote">
+        <button type="button" class="sidebar-btn" data-sidebar="csv" title="Matricula em Lote" aria-label="Matrícula em lote">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
@@ -122,6 +122,11 @@
     <!-- ABA 1: CONSULTA DE ALUNO -->
     <!-- ============================================ -->
     <section id="searchTab" class="tab-content active">
+      <div class="page-title-block">
+        <h1 class="page-title">Consulta do Aluno</h1>
+        <p class="page-subtitle">Localize o estudante e acompanhe vínculos, progresso, certificados e indicadores acadêmicos.</p>
+      </div>
+
       <!-- SEARCH BAR -->
       <div class="search-bar-card">
         <form id="searchForm" class="search-form">
@@ -612,6 +617,11 @@
     <!-- ABA 3: MATRICULA EM LOTE CSV -->
     <!-- ============================================ -->
     <section id="csvTab" class="tab-content" style="display:none">
+      <div class="page-title-block">
+        <h1 class="page-title">Matrícula em Lote</h1>
+        <p class="page-subtitle">Importe, valide e acompanhe o provisionamento de estudantes em um fluxo assistido.</p>
+      </div>
+
       <!-- Stepper -->
       <div class="stepper">
         <div class="step active" data-step="1">
@@ -643,7 +653,7 @@
       <div id="csvUploadSection" class="csv-section active">
         <div class="csv-grid">
           <!-- Coluna Upload -->
-          <div class="card batch-parameters-card">
+          <div class="card upload-mapping-card">
             <h2 class="card-headline">Upload de Arquivo e Mapeamento</h2>
             <p class="card-desc">Envie a planilha de estudantes em formato CSV, delimitada por ponto e vírgula ou
               vírgula, para o cruzamento automático com os cursos cadastrados na Hotscool.</p>
@@ -749,7 +759,7 @@
           </div>
 
           <!-- Coluna Parametros -->
-          <div class="card">
+          <div class="card batch-parameters-card">
             <div class="card-header">
               <h3 class="card-title">Parâmetros Gerais do Lote</h3>
             </div>
