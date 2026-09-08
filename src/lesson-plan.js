@@ -7,6 +7,7 @@ import {
   downloadLessonTemplate,
   downloadLessonXml,
   formatLessonCompatibility,
+  normalizeLessonKey,
   parseLessonWorkbook,
 } from './lesson-plan-utils.js';
 
@@ -57,12 +58,35 @@ let programCatalogPromise;
 
 async function getProgramCatalog() {
   if (!programCatalogPromise) {
-    programCatalogPromise = fetch('/api/lesson-programs')
-      .then((response) => response.ok ? response.json() : { programs: [] })
-      .then((data) => Array.isArray(data.programs) ? data.programs : [])
+    programCatalogPromise = import('./cod_programas.json')
+      .then((module) => Array.isArray(module.default) ? module.default : [])
       .catch(() => []);
   }
   return programCatalogPromise;
+}
+
+function enrichProgramsFromCatalog(catalog) {
+  const programMap = new Map(catalog.map((program) => [
+    normalizeLessonKey(program.Código || program.code),
+    String(program.Nome || program.name || '').trim(),
+  ]).filter(([code, name]) => code && name));
+  let changed = false;
+  state.plan.unidades.forEach((unit) => {
+    unit.programas = unit.programas.map((program) => {
+      const match = program.match(/^([^\s]+)\s*[-:–—]\s*(.*)$/);
+      const code = match?.[1] || program;
+      const name = programMap.get(normalizeLessonKey(code));
+      if (!name) return program;
+      const enriched = `${code} - ${name}`;
+      if (enriched === program) return program;
+      changed = true;
+      return enriched;
+    });
+  });
+  if (changed) {
+    saveState();
+    render();
+  }
 }
 
 function saveState() {
@@ -157,7 +181,51 @@ function renderReview() {
 
 function renderDocumentContent() {
   const plan = state.plan;
-  return `<div class="lesson-document"><header><span>PLANO DE ENSINO</span><h2>${escapeHtml(plan.nomeCurso || 'Nome do curso')}</h2><p>Documento institucional Consistem</p></header><div class="lesson-document-meta"><div><span>Versão</span><strong>${escapeHtml(plan.versaoCurso || '-')}</strong></div><div><span>Publicação</span><strong>${escapeHtml(plan.publicacao || '-')}</strong></div><div><span>Carga horária</span><strong>${escapeHtml(plan.cargaHoraria || '0')} horas</strong></div><div><span>Modalidade</span><strong>${escapeHtml(plan.modalidade || '-')}</strong></div><div class="wide"><span>Compatibilidade</span><strong>${escapeHtml(formatLessonCompatibility(plan))}</strong></div></div>${plan.objetivoGeral ? `<section><h3>Objetivo geral</h3><p>${escapeHtml(plan.objetivoGeral)}</p></section>` : ''}${plan.publicoAlvo ? `<section><h3>Público-alvo</h3><p>${escapeHtml(plan.publicoAlvo)}</p></section>` : ''}<section><h3 class="coral">Conteúdo</h3>${plan.unidades.map((unit, index) => `<article><h4>Aula ${index + 1} | ${escapeHtml(unit.tituloUnidade)}</h4><small>Ao fim desta aula, o usuário deve conseguir:</small><ul>${unit.objetivos.map((objective) => `<li>${escapeHtml(objective)}</li>`).join('')}</ul>${unit.programas.length ? `<strong>Programas utilizados</strong><p>${unit.programas.map(escapeHtml).join('<br>')}</p>` : ''}</article>`).join('')}</section><section><h3 class="coral">Conteudista(s)</h3>${plan.conteudistas.map((writer) => `<article><h4>${escapeHtml(writer.nome || 'Conteudista responsável')}</h4>${writer.biografia ? `<p>${escapeHtml(writer.biografia)}</p>` : ''}</article>`).join('')}</section></div>`;
+  return `<div class="lesson-document lesson-document-source"><div class="lesson-page-flow">
+    <header data-pdf-block><span>PLANO DE ENSINO</span><h2>${escapeHtml(plan.nomeCurso || 'Nome do curso')}</h2><p>Documento institucional Consistem</p></header>
+    <div class="lesson-document-meta" data-pdf-block><div><span>Versão</span><strong>${escapeHtml(plan.versaoCurso || '-')}</strong></div><div><span>Publicação</span><strong>${escapeHtml(plan.publicacao || '-')}</strong></div><div><span>Carga horária</span><strong>${escapeHtml(plan.cargaHoraria || '0')} horas</strong></div><div><span>Modalidade</span><strong>${escapeHtml(plan.modalidade || '-')}</strong></div><div class="wide"><span>Compatibilidade</span><strong>${escapeHtml(formatLessonCompatibility(plan))}</strong></div></div>
+    ${plan.objetivoGeral ? `<section data-pdf-block><h3>Objetivo geral</h3><p>${escapeHtml(plan.objetivoGeral)}</p></section>` : ''}
+    ${plan.publicoAlvo ? `<section data-pdf-block><h3>Público-alvo</h3><p>${escapeHtml(plan.publicoAlvo)}</p></section>` : ''}
+    <section class="lesson-document-heading" data-pdf-block><h3 class="coral">Conteúdo</h3></section>
+    ${plan.unidades.map((unit, index) => `<article class="lesson-document-unit" data-pdf-block><h4>Aula ${index + 1} | ${escapeHtml(unit.tituloUnidade)}</h4><small>Ao fim desta aula, o usuário deve conseguir:</small><ul>${unit.objetivos.map((objective) => `<li>${escapeHtml(objective)}</li>`).join('')}</ul>${unit.programas.length ? `<strong>Programas utilizados</strong><p>${unit.programas.map(escapeHtml).join('<br>')}</p>` : ''}</article>`).join('')}
+    <section class="lesson-document-heading" data-pdf-block><h3 class="coral">Conteudista(s)</h3></section>
+    ${plan.conteudistas.map((writer) => `<article class="lesson-document-writer" data-pdf-block><h4>${escapeHtml(writer.nome || 'Conteudista responsável')}</h4>${writer.biografia ? `<p>${escapeHtml(writer.biografia)}</p>` : ''}</article>`).join('')}
+  </div></div>`;
+}
+
+function paginateLessonPreview() {
+  const source = root?.querySelector('.lesson-document-source');
+  const sourceFlow = source?.querySelector('.lesson-page-flow');
+  if (!source || !sourceFlow) return;
+  const blocks = [...sourceFlow.children];
+  const pages = document.createElement('div');
+  pages.className = 'lesson-document-pages';
+
+  function addPage() {
+    const page = document.createElement('div');
+    page.className = 'lesson-document';
+    const flow = document.createElement('div');
+    flow.className = 'lesson-page-flow';
+    page.appendChild(flow);
+    pages.appendChild(page);
+    return flow;
+  }
+
+  source.replaceWith(pages);
+  let flow = addPage();
+  blocks.forEach((block) => {
+    flow.appendChild(block);
+    if (flow.scrollHeight > flow.clientHeight && flow.children.length > 1) {
+      block.remove();
+      const sectionHeading = flow.lastElementChild?.classList.contains('lesson-document-heading')
+        ? flow.lastElementChild
+        : null;
+      sectionHeading?.remove();
+      flow = addPage();
+      if (sectionHeading) flow.appendChild(sectionHeading);
+      flow.appendChild(block);
+    }
+  });
 }
 
 function renderPreview() {
@@ -189,6 +257,7 @@ function renderWordPress() {
 function render() {
   if (!root) return;
   root.innerHTML = `<div class="lesson-toolbar"><div><span class="lesson-draft-dot"></span> Rascunho salvo neste navegador</div>${state.plan.unidades.length ? '<button type="button" class="btn-ghost-sm danger" data-action="reset">Recomeçar</button>' : ''}</div>${renderStepper()}<div class="lesson-step-content">${state.step === 1 ? renderUpload() : state.step === 2 ? renderReview() : state.step === 3 ? renderPreview() : renderWordPress()}</div>`;
+  if (state.step === 3) requestAnimationFrame(paginateLessonPreview);
 }
 
 function applyImportedResult(result) {
@@ -313,6 +382,7 @@ export function initializeLessonPlan() {
   root = document.getElementById('lessonPlanApp');
   if (!root) return;
   render();
+  if (state.plan.unidades.length) getProgramCatalog().then(enrichProgramsFromCatalog);
   root.addEventListener('click', (event) => {
     const button = event.target.closest('[data-action], [data-taxonomy]');
     if (!button || !root.contains(button)) return;

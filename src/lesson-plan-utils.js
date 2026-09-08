@@ -44,7 +44,11 @@ function cleanPrograms(value, programMap) {
   return [...new Set(splitValues(value).filter((item) => !/^(n\/?a|n\/?d|-|nenhum)$/i.test(item)).map((item) => {
     const cleaned = item.replace(/^[%@#$\[({]+/, '').replace(/[\])}]+$/, '').trim();
     const match = cleaned.match(/^([a-z0-9_-]{3,20})\s*[-:–—]\s*(.+)$/i);
-    if (match) return `${match[1].toUpperCase()} - ${match[2].trim()}`;
+    if (match) {
+      const code = match[1].toUpperCase();
+      const catalogName = programMap.get(normalizeLessonKey(code));
+      return `${code} - ${catalogName || match[2].trim()}`;
+    }
     const code = cleaned.toUpperCase();
     return programMap.get(normalizeLessonKey(code)) ? `${code} - ${programMap.get(normalizeLessonKey(code))}` : code;
   }))];
@@ -192,49 +196,53 @@ function safeFilename(value) {
 }
 
 export async function downloadLessonPdf(plan) {
-  const documentElement = document.querySelector('#lessonPlanApp .lesson-document');
-  if (!documentElement) throw new Error('Pré-visualização do plano não encontrada.');
+  const documentPages = [...document.querySelectorAll('#lessonPlanApp .lesson-document-pages .lesson-document')];
+  if (!documentPages.length) throw new Error('Pré-visualização do plano não encontrada.');
 
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
     import('html2canvas'),
     import('jspdf'),
     document.fonts?.ready || Promise.resolve(),
   ]);
-  const backgroundUrl = getComputedStyle(documentElement).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/)?.[1];
+  const backgroundUrl = getComputedStyle(documentPages[0]).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/)?.[1];
+  let letterheadDataUrl = null;
   if (backgroundUrl) {
-    await Promise.race([
-      new Promise((resolve) => {
-        const image = new Image();
-        image.onload = resolve;
-        image.onerror = resolve;
-        image.src = backgroundUrl;
-      }),
-      new Promise((resolve) => setTimeout(resolve, 5000)),
-    ]);
+    try {
+      const response = await fetch(backgroundUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        letterheadDataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      }
+    } catch {}
   }
-  const sourceCanvas = await html2canvas(documentElement, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: '#ffffff',
-    logging: false,
-  });
-  const pageHeightPixels = Math.round(sourceCanvas.width * (1123 / 794));
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
-
-  for (let offset = 0, page = 0; offset < sourceCanvas.height; offset += pageHeightPixels, page += 1) {
+  for (let page = 0; page < documentPages.length; page += 1) {
+    const captureId = `lesson-pdf-page-${page}`;
+    documentPages[page].dataset.pdfCapture = captureId;
+    const canvas = await html2canvas(documentPages[page], {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+      onclone(clonedDocument) {
+        if (!letterheadDataUrl) return;
+        const clonedPage = clonedDocument.querySelector(`[data-pdf-capture="${captureId}"]`);
+        if (clonedPage) {
+          clonedPage.style.backgroundImage = 'none';
+          clonedPage.style.backgroundColor = 'transparent';
+          clonedPage.style.boxShadow = 'none';
+        }
+      },
+    });
+    delete documentPages[page].dataset.pdfCapture;
     if (page > 0) doc.addPage();
-    const sliceCanvas = document.createElement('canvas');
-    sliceCanvas.width = sourceCanvas.width;
-    sliceCanvas.height = pageHeightPixels;
-    const context = sliceCanvas.getContext('2d');
-    context.fillStyle = '#ffffff';
-    context.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-    context.drawImage(
-      sourceCanvas,
-      0, offset, sourceCanvas.width, Math.min(pageHeightPixels, sourceCanvas.height - offset),
-      0, 0, sourceCanvas.width, Math.min(pageHeightPixels, sourceCanvas.height - offset),
-    );
-    doc.addImage(sliceCanvas.toDataURL('image/jpeg', 0.94), 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+    if (letterheadDataUrl) doc.addImage(letterheadDataUrl, 'PNG', 0, 0, 210, 297, 'lesson-letterhead', 'FAST');
+    doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297, undefined, 'FAST');
   }
 
   doc.save(`Plano_Ensino_${safeFilename(plan.nomeCurso)}_v${safeFilename(plan.versaoCurso || '1.0')}.pdf`);

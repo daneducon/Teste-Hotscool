@@ -87,7 +87,9 @@
 .lesson-program-chips span { padding: 4px 8px; border-radius: var(--r-sm); background: var(--surface-container); color: var(--graphite-muted); font-size: 10px; }
 .lesson-preview-toolbar { margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .lesson-preview-stage { padding: 32px; overflow-x: auto; display: flex; justify-content: center; border: 1px solid var(--graphite-border); border-radius: var(--r-lg); background: var(--surface-container); }
-.lesson-document { width: 794px; min-width: 794px; min-height: 1123px; padding: 116px 68px 76px; background-color: white; background-image: url('/fundo_papel.png'); background-position: top center; background-size: 794px 1123px; background-repeat: repeat-y; box-shadow: var(--shadow-float); font-size: 13px; }
+.lesson-document-pages { display: flex; flex-direction: column; gap: 24px; }
+.lesson-document { width: 794px; min-width: 794px; height: 1123px; padding: 116px 68px 76px; overflow: hidden; background-color: white; background-image: url('/fundo_papel.png'); background-position: top center; background-size: 794px 1123px; background-repeat: no-repeat; box-shadow: var(--shadow-float); font-size: 13px; }
+.lesson-page-flow { height: 931px; overflow: hidden; display: flow-root; }
 .lesson-document header { padding-bottom: 18px; border-bottom: 2px solid var(--graphite); }
 .lesson-document header > span { color: var(--coral); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
 .lesson-document header h2 { margin: 6px 0; font-size: 24px; line-height: 1.12; }
@@ -101,7 +103,9 @@
 .lesson-document section { margin-top: 22px; }
 .lesson-document section > h3 { margin-bottom: 9px; font-size: 13px; text-transform: uppercase; }
 .lesson-document h3.coral { color: var(--coral); font-size: 18px; text-transform: none; }
-.lesson-document article { margin-top: 16px; }
+.lesson-document article { margin-top: 16px; break-inside: avoid; }
+.lesson-document-heading { margin-top: 22px; }
+.lesson-document-unit + .lesson-document-unit { margin-top: 20px; }
 .lesson-document article h4 { margin-bottom: 7px; font-size: 14px; }
 .lesson-document article p { line-height: 1.5; white-space: pre-line; }
 .lesson-document ul { margin: 8px 0 10px 18px; }
