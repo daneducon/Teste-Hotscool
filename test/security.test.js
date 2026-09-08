@@ -37,7 +37,7 @@ test('authorization policy is default-deny and scopes schools', () => {
 });
 
 test('viewer sessions cannot obtain write permission', async () => {
-  process.env.AUTH_SECRET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFG';
+  process.env.AUTH_SECRET = '0123456789abcdefghijklmnopqrstuv';
   process.env.GOOGLE_CLIENT_ID = 'client.apps.googleusercontent.com';
   process.env.AUTHORIZATION_POLICY = JSON.stringify({
     'viewer@example.com': { role: 'viewer', schools: [0] },
@@ -61,7 +61,7 @@ test('auth configuration rejects missing and documented secrets', () => {
   assert.equal(isAuthConfigured(), false);
   process.env.AUTH_SECRET = '';
   assert.equal(isAuthConfigured(), false);
-  process.env.AUTH_SECRET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFG';
+  process.env.AUTH_SECRET = '0123456789abcdefghijklmnopqrstuv';
   assert.equal(isAuthConfigured(), true);
 });
 

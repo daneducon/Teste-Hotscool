@@ -12,7 +12,7 @@ const ROLE_PERMISSIONS = {
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
-  if (!secret || secret.length < 43 || secret === EXAMPLE_SECRET || new Set(secret).size < 16) return null;
+  if (!secret || secret.length < 32 || secret === EXAMPLE_SECRET || new Set(secret).size < 16) return null;
   return new TextEncoder().encode(secret);
 }
 
