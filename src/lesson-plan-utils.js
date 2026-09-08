@@ -196,7 +196,11 @@ function safeFilename(value) {
 }
 
 export async function downloadLessonPdf(plan) {
-  const documentPages = [...document.querySelectorAll('#lessonPlanApp .lesson-document-pages .lesson-document')];
+  let documentPages = [...document.querySelectorAll('#lessonPlanApp .lesson-document-pages .lesson-document')];
+  if (!documentPages.length) {
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    documentPages = [...document.querySelectorAll('#lessonPlanApp .lesson-document-pages .lesson-document')];
+  }
   if (!documentPages.length) throw new Error('Pré-visualização do plano não encontrada.');
 
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([

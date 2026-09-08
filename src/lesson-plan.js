@@ -410,9 +410,14 @@ async function handleAction(button) {
   if (action === 'ai-audience') return callLessonAi('audience');
   if (action === 'ai-wordpress') return callLessonAi('wordpress');
   if (action === 'pdf') {
-    busy = true; render();
+    busy = true;
+    button.disabled = true;
+    button.textContent = 'Gerando documento...';
     try { await downloadLessonPdf(state.plan); state.pdfDownloaded = true; feedback = null; saveState(); }
-    catch { feedback = { type: 'error', message: 'Não foi possível gerar o PDF.' }; }
+    catch (error) {
+      console.error('Erro ao gerar o plano de ensino em PDF:', error);
+      feedback = { type: 'error', message: 'Não foi possível gerar o PDF. Atualize a página e tente novamente.' };
+    }
     finally { busy = false; render(); }
     return;
   }
