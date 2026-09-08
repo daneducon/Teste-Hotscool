@@ -35,6 +35,10 @@ function showAuthenticatedApp(user) {
   authenticatedUserEmail.textContent = user.email || '';
   auditorName.textContent = user.name || 'Usuário autorizado';
   auditorEmail.textContent = user.email || '';
+  if (user.role === 'viewer') {
+    document.querySelectorAll('[data-sidebar="register"], [data-sidebar="csv"]')
+      .forEach((button) => { button.hidden = true; });
+  }
 
   if (user.picture) {
     const pictureUrl = safeHttpsUrl(user.picture);
@@ -123,7 +127,11 @@ async function initializeAuthentication() {
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    });
     window.google?.accounts?.id?.disableAutoSelect();
     window.location.reload();
   });
@@ -769,11 +777,12 @@ function renderCoursesList(courses) {
     return;
   }
   coursesListContainer.innerHTML = courses.map((c) => {
-    const isChecked = selectedCourseIds.has(c.id);
-    const duration = c.duracao ? `${c.duracao}h` : '';
+    const courseId = Number(c.id);
+    const isChecked = selectedCourseIds.has(courseId);
+    const duration = c.duracao ? `${escapeHtml(c.duracao)}h` : '';
     return `
-      <label class="course-check-item ${isChecked ? 'selected' : ''}" data-id="${c.id}">
-        <input type="checkbox" value="${c.id}" ${isChecked ? 'checked' : ''}>
+      <label class="course-check-item ${isChecked ? 'selected' : ''}" data-id="${courseId}">
+        <input type="checkbox" value="${courseId}" ${isChecked ? 'checked' : ''}>
         <div class="course-check-info">
           <span class="course-check-name">${escapeHtml(c.nome)}</span>
           <div class="course-check-meta">
@@ -1131,6 +1140,13 @@ if (csvFileInput) {
 }
 
 function handleSelectedFile(file) {
+  const isCsv = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
+  if (!isCsv || file.size > 10 * 1024 * 1024) {
+    csvSelectedFile = null;
+    if (csvFileInput) csvFileInput.value = '';
+    showCsvFeedback('error', 'Selecione um arquivo CSV de até 10 MB.');
+    return;
+  }
   csvSelectedFile = file;
   csvFileNameText.textContent = file.name;
   csvFileSizeText.textContent = `${(file.size / 1024).toFixed(1)} KB`;

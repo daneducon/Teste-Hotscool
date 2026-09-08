@@ -1,4 +1,5 @@
 import { clearSessionCookie } from '../auth-utils.js';
+import { requireTrustedJsonRequest } from '../security.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -6,6 +7,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido.' });
   }
 
+  if (!requireTrustedJsonRequest(req, res)) return;
   clearSessionCookie(res);
   return res.status(200).json({ ok: true });
 }

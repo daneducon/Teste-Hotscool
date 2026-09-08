@@ -1,4 +1,4 @@
-import { getSession, isAuthConfigured, isEmailAllowed } from '../auth-utils.js';
+import { getAuthorization, getSession, isAuthConfigured, isEmailAllowed } from '../auth-utils.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -15,5 +15,9 @@ export default async function handler(req, res) {
     return res.status(401).json({ authenticated: false });
   }
 
-  return res.status(200).json({ authenticated: true, user });
+  const authorization = getAuthorization(user.email);
+  return res.status(200).json({
+    authenticated: true,
+    user: { ...user, role: authorization.role, schools: authorization.schools },
+  });
 }

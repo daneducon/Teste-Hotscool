@@ -1,5 +1,5 @@
 ---
-name: Hotscool Manager Design System
+name: Consistem Design System
 colors:
   surface: '#f8f9fa'
   surface-dim: '#d9dadb'
@@ -16,19 +16,19 @@ colors:
   outline: '#77777b'
   outline-variant: '#c7c6ca'
   surface-tint: '#5f5e60'
-  primary: '#19191b'
+  primary: '#2e2e30'
   on-primary: '#ffffff'
   primary-container: '#2e2e30'
-  on-primary-container: '#979597'
-  inverse-primary: '#c8c6c8'
-  secondary: '#af2f22'
+  on-primary-container: '#a5a5ab'
+  inverse-primary: '#ffffff'
+  secondary: '#df5241'
   on-secondary: '#ffffff'
-  secondary-container: '#fe6855'
-  on-secondary-container: '#690001'
-  tertiary: '#251800'
+  secondary-container: '#fff5f4'
+  on-secondary-container: '#df5241'
+  tertiary: '#ebaf2d'
   on-tertiary: '#ffffff'
-  tertiary-container: '#3f2b00'
-  on-tertiary-container: '#c38d00'
+  tertiary-container: '#fcf5e5'
+  on-tertiary-container: '#9c7013'
   error: '#ba1a1a'
   on-error: '#ffffff'
   error-container: '#ffdad6'
@@ -70,38 +70,38 @@ typography:
     fontFamily: DM Sans
     fontSize: 36px
     fontWeight: '600'
-    lineHeight: 40px
+    lineHeight: 36px
     letterSpacing: -0.02em
   display-lg-mobile:
     fontFamily: DM Sans
     fontSize: 28px
     fontWeight: '600'
-    lineHeight: 32px
+    lineHeight: 28px
     letterSpacing: -0.02em
   headline-lg:
     fontFamily: DM Sans
     fontSize: 24px
     fontWeight: '600'
-    lineHeight: 28px
+    lineHeight: 24px
     letterSpacing: -0.02em
   headline-md:
     fontFamily: DM Sans
     fontSize: 20px
     fontWeight: '600'
-    lineHeight: 24px
-    letterSpacing: -0.015em
+    lineHeight: 20px
+    letterSpacing: -0.02em
   headline-sm:
     fontFamily: DM Sans
     fontSize: 18px
     fontWeight: '600'
-    lineHeight: 22px
-    letterSpacing: -0.01em
+    lineHeight: 18px
+    letterSpacing: -0.02em
   title-md:
     fontFamily: DM Sans
     fontSize: 16px
     fontWeight: '600'
-    lineHeight: 22px
-    letterSpacing: -0.01em
+    lineHeight: 16px
+    letterSpacing: -0.02em
   body-lg:
     fontFamily: DM Sans
     fontSize: 16px
@@ -118,7 +118,7 @@ typography:
     fontFamily: DM Sans
     fontSize: 13px
     fontWeight: '400'
-    lineHeight: 19px
+    lineHeight: 19.5px
     letterSpacing: 0em
   label-lg:
     fontFamily: DM Sans
@@ -163,119 +163,80 @@ spacing:
 
 ## Brand & Style
 
-The design system establishes a high-performance, refined operational experience engineered for educational institutions, student records, and enrollment pipelines. The aesthetic merges **Modern SaaS Minimalism** with **Tactile Clarity**: quiet confidence driven by stark structural contrasts, spacious canvas environments, and focused chromatic accents.
+O design system estabelece a experiência operacional para o ecossistema de soluções da **Consistem**[cite: 1]. A estética une a sobriedade institucional à sofisticação geométrica[cite: 1]: confiança sólida guiada por alto contraste estrutural, layouts bem espaçados ("que respiram") e uso cirúrgico de acentos cromáticos[cite: 1, 3].
 
-### Core Philosophy & Audience
-Targeted at academic directors, enrollment coordinators, and operational administrators, the interface removes cognitive friction in high-throughput workflows. The visual character communicates stability, precision, and executive clarity.
+### Filosofia da Marca & Audiência
+Projetado para gestores operacionais, C-Levels, analistas e usuários do sistema[cite: 1], a interface elimina a fricção cognitiva em fluxos complexos de ERP[cite: 1, 3]. A personalidade reflete o posicionamento da Consistem: autoridade técnica (Sábio) aliada à capacidade prática de resolução (Herói)[cite: 1].
 
-### Visual Style
-- **Base Canvas & Layering:** Elevated pure white (`#ffffff`) surfaces positioned over an ultra-soft cool neutral background (`#f8f9fa`), achieving clear hierarchy without harsh dividers.
-- **Micro-tactility:** Ultra-soft, multi-stop ambient shadows and subtle hairline container borders give widgets tactile presence.
-- **Decisive Chromatic Accents:** Neutral Grafite (`#2e2e30`) anchors typography and institutional elements. Vibrant Technical Coral (`#df5241`) acts with clinical intention on primary user conversions, mission-critical callouts, and destructive confirmations. Burnished Gold (`#ebaf2d`) handles secondary attention, retention metrics, and alert statuses.
+### Estilo Visual
+- **Camadas & Superfícies:** Superfícies em Branco Puro (`#ffffff`) sobrepostas a um fundo Neutro Suave (`#f8f9fa`)[cite: 1]. A geometria segue a lógica do símbolo da marca: precisa, com cantos suavemente arredondados (evitar $90^\circ$ secos)[cite: 1].
+- **Espaço em Branco (Respiro):** Uso intencional de Macro Espaço (margens generosas entre seções) e Micro Espaço (espaçamento interno de cards, formulários e entrelinhas) para evitar poluição e ruído visual[cite: 3].
+- **Acentos Cromáticos:** Grafite (`#2e2e30`) ancora a estrutura e a tipografia principal (55-70% da UI)[cite: 1]. Coral Técnico Desaturado (`#df5241`) atua com precisão clínica em botões de ação (CTA), alertas e acentos (15-20%)[cite: 1]. Amarelo Queimado (`#ebaf2d`) trata destaques secundários e badges informativos (15-20%)[cite: 1].
 
 ## Colors
 
-The color architecture balances a monochrome core with focused functional chromatic accents:
+A arquitetura de cor prioriza clareza, legibilidade e suporte à tomada de decisão[cite: 1, 3]:
 
-- **Primary (`#2e2e30` - Grafite):** Serves as the bedrock of structural weight, high-order typography, active sidebar navigation states, and primary executive metrics.
-- **Secondary (`#df5241` - Coral Técnico):** Reserved exclusively for core transactional conversions ("Nova Matrícula", "Efetivar Pagamento"), active focus states, and priority badges. Must never be used as general decorative filler.
-- **Tertiary (`#ebaf2d` - Amarelo Queimado):** Provides attention guidance for pending enrollment reviews, verification badges, warning toasts, and auxiliary data visualization series.
-- **Neutral (`#f8f9fa` - Canvas Neutro Suave):** Governs the foundation layer, establishing contrast with floating `#ffffff` modules.
+- **Primary (`#2e2e30` - Grafite):** Ancoragem visual, títulos, textos corporativos e estados de navegação[cite: 1].
+- **Secondary (`#df5241` - Coral Técnico Desaturado):** Exclusivo para ações primárias de conversão ("Salvar Alterações", "Confirmar"), estados ativos relevantes e destaques operacionais[cite: 1]. Nunca deve ser usado em grandes áreas de fundo[cite: 1].
+- **Tertiary (`#ebaf2d` - Amarelo Queimado):** Orientação de atenção para itens em análise, alertas, pendências e acentos secundários[cite: 1].
+- **Neutral (`#f8f9fa` - Canvas Suave):** Fundo padrão da aplicação que garante o respiro e contrasta com módulos flutuantes[cite: 1, 3].
 
-### Functional Roles & Gradients
-- **Interactive States:** Coral interactive states shift to `#c84434` on press/hover. Dark graphite elements shift to `#222223`.
-- **System Badges & Pills:** Status tokens combine a muted tonal container with a high-contrast text element (e.g., `#fff5f4` container with `#df5241` label for critical alerts; `#fcf5e5` container with `#b88214` label for pending verification).
-- **Authorized Gradient:** High-impact metric widgets or summary cards may apply a dual-stop linear gradient from `#df5241` to `#ebaf2d` at a 135-degree angle, bounded to micro-accent indicator bars or primary banners.
+### Gradients & Badges
+- **Estados Interativos:** Elementos em Coral migram para `#c84434` no hover[cite: 1]. Grafite migra para `#222223`[cite: 1].
+- **Badges de Status:** Combinam fundo suave desaturado com texto em tom pleno (ex: fundo `#fff5f4` com texto `#df5241` para erros/alertas; fundo `#fcf5e5` com texto `#9c7013` para pendências)[cite: 1].
+- **Gradiente Secundário Autorizado:** Transição a $135^\circ$ entre `#df5241` (100%) e `#ebaf2d` (100%), reservada a banners ou cards de alto impacto[cite: 1].
 
 ## Typography
 
-The type scale is powered by **DM Sans**, delivering geometric precision with humanist legibility.
+A tipografia oficial é a **DM Sans**[cite: 1]. Oferece uma leitura geométrica limpa e fluida[cite: 1].
 
-### Hierarchy & Typesetting Guidelines
-- **Headlines & Metric Titles:** Rendered with `SemiBold` (600) weight paired with negative letter spacing (`-0.02em` / `-20 tracking`). Entrelinha remains tight (100% to 115%) to create decisive visual anchors in analytical views.
-- **Body & Continuous Copy:** Rendered in `Regular` (400) weight with a comfortable `1.5` (150%) line height to maximize scan readability during record auditing.
-- **Labels, Badges, and Microcopy:** Utilize `Medium` (500) and `SemiBold` (600). Small badge elements (`label-sm`) use uppercase styling with positive tracking (`+0.04em`) to maintain legibility at 11px.
-- **Numerics & Tabular Data:** Financial metrics, student IDs, and enrollment counts must utilize font features `font-variant-numeric: tabular-nums;` to maintain strict baseline alignment across lists and dashboard tables.
+### Diretrizes de Hierarquia & Tipografia
+- **Títulos & Headlines:** Renderizados em `SemiBold` (600) com tracking `-20` (`-0.02em`)[cite: 1]. A entrelinha para títulos é igual a 100% do tamanho da fonte (ex: 24px de fonte / 24px line-height) para manter o bloco coeso e marcante[cite: 1]. Subtítulos devem possuir entre 60% e 75% do tamanho do título[cite: 1].
+- **Texto Corrido (Body):** Utiliza peso `Regular` (400) com entrelinha estrita de `1.5` (150% do tamanho da fonte) para maximizar a escaneabilidade[cite: 1]. O tamanho do corpo deve possuir de 70% a 85% do tamanho do subtítulo[cite: 1].
+- **Alinhamento & Estilo:** Alinhamento preferencial à esquerda[cite: 1, 3]. Evitar parágrafos longos centralizados ou justificados[cite: 1, 3]. Caixa alta (uppercase) deve ser restrita a pequenas etiquetas/badges (`label-sm` / `label-md`)[cite: 1].
+- **Grafia da Marca:** Sempre escrever **Consistem** em textos corridos (Maiúscula seguida de minúsculas)[cite: 1]. Nunca escrever CONSISTEM[cite: 1].
 
 ## Layout & Spacing
 
-The layout is built on a 12-column responsive fluid-grid structure complemented by a fixed, compact primary navigation rail.
+Organizado em um grid responsivo fluído de 12 colunas[cite: 3].
 
-### Spatial Rhythm & Breakpoints
-- **Compact Sidebar Rail (Desktop):** A fixed 80px wide navigational rail anchors primary module icons, leaving maximum horizontal space for dashboard matrices.
-- **Main Canvas Container:** Bound to an expansive fluid container with a maximum content clamp of `1600px` to maintain data readability on ultrawide displays.
+### Ritmo Espacial & Visual Space
+- **Respiro de Interface:** Evitar layouts sufocados[cite: 3]. Remover elementos decorativos sem função estrutural que gerem ruído visual[cite: 3].
+- **Distribuição de Containers:** Manter o limite ideal de **2 a 3 cards/boxes principais por linha visual** no desktop[cite: 1, 3].
 - **Breakpoints:**
-  - **Mobile (< 768px):** 4-column layout, `1rem` (16px) margin, navigation switches to bottom sheet / drawer bar.
-  - **Tablet (768px – 1024px):** 8-column layout, `1.5rem` (24px) margin, 2-column card wrapping.
-  - **Desktop (> 1024px):** 12-column layout, `2.5rem` (40px) margin, `1.5rem` (24px) gutters between operational widgets.
+  - **Mobile (< 768px):** Grid de 4 colunas, margem de `1rem` (16px)[cite: 3].
+  - **Tablet (768px – 1024px):** Grid de 8 colunas, margem de `1.5rem` (24px)[cite: 3].
+  - **Desktop (> 1024px):** Grid de 12 colunas, margem de `2.5rem` (40px), gutters de `1.5rem` (24px) entre módulos[cite: 3].
 
-### Box Distribution
-Adhere to the guideline rule of displaying **2 to 3 main functional boxes/cards per visual row** on desktop, preventing information saturation and ensuring focused scanning.
+## Elevation, Depth & Shapes
 
-## Elevation & Depth
+Geometria suave com bordas levemente arredondadas e uso moderado de profundidade[cite: 1].
 
-Visual hierarchy uses layered planes and diffused ambient shadows rather than stark heavy outlines.
+### Tratameno de Forma (Shapes)
+- **Cards e Painéis:** Cantos arredondados suavizados (`0.75rem` / 12px a `1rem` / 16px). Evitar cantos de $90^\circ$ totalmente rígidos[cite: 1].
+- **Imagens e Ilustrações:** Evitar enclausurar imagens em caixas com fundos carregados[cite: 3]. Imagens e ilustrações recortadas (PNG/SVG) que integram suavemente no fundo neutro facilitam o foco e o respiro[cite: 1, 3].
+- **Sombra & Camadas:** Profundidade construída via sombras difusas sutis (`0 4px 20px -2px rgba(46, 46, 48, 0.04)`) combinadas a bordas finas em `#e8e9eb`[cite: 1].
 
-### Surface Tiers
-1. **Tier 0 (Root Canvas):** `#f8f9fa`. The neutral backdrop across all application layouts.
-2. **Tier 1 (Surface Cards & Widgets):** `#ffffff`. Elevated using an ambient, dual-stop shadow:
-   `box-shadow: 0 4px 20px -2px rgba(46, 46, 48, 0.04), 0 2px 6px -1px rgba(46, 46, 48, 0.02);`
-   Border: `1px solid rgba(232, 233, 235, 0.8)`.
-3. **Tier 2 (Interactive Floating Elements & Dropdowns):** `#ffffff`. Used for action menus, datepickers, and flyouts:
-   `box-shadow: 0 12px 32px -4px rgba(46, 46, 48, 0.08), 0 4px 12px -2px rgba(46, 46, 48, 0.03);`
-4. **Tier 3 (Modal Dialogs & Drawers):** `#ffffff` sitting on an overlay backdrop of `rgba(46, 46, 48, 0.45)` with `backdrop-filter: blur(4px)`.
-   `box-shadow: 0 24px 48px -8px rgba(46, 46, 48, 0.16);`
+## Iconography & Button System
 
-### Inset & Sunken Treatments
-Data fields, search bars, and filter strips utilize a sunken foundation (`#ffffff` or `#f1f3f5`) with an ultra-thin perimeter stroke (`#e8e9eb`) to set them visually behind Tier 1 cards.
+### Sistema de Ícones Consistem
+- **Construção:** Grid base de `24x24 px` com traço uniforme de `1.75 px` e junções arredondadas[cite: 1].
+- **Esquema de Cores:** Corpo em Grafite (`#2e2e30`) ou Branco (`#ffffff`) acompanhado por **apenas 1 ponto de acento de cor** em Coral (`#df5241`) ou Amarelo (`#ebaf2d`)[cite: 1].
 
-## Shapes
+### Uso de Ícones em Botões
+- **Ícone à Esquerda:** Utilizado quando ajuda a reconhecer previamente a ação (ex: `+ Criar produto`, `Filtrar resultados`, `Baixar arquivo`)[cite: 4].
+- **Ícone à Direita:** Utilizado quando indica direção, avanço de etapa ou próximo passo (ex: `Próximo →`, `Enviar →`, `Abrir no app ↗`)[cite: 4]. Ações de retorno usam seta à esquerda (`← Voltar`)[cite: 4].
+- **Regras para Ícones em Botões:**
+  - Não utilizar ícone quando o botão for simples e óbvio (ex: `Entrar`, `Cadastrar`)[cite: 4].
+  - Nunca utilizar dois ícones em um mesmo botão[cite: 4].
+  - Ícone e texto devem formar um grupo visual único e centralizado dentro da estrutura do botão[cite: 4].
 
-The shape system features softened, organic geometry with standard radii between 16px and 24px.
+## UX Writing & Communication Guidelines
 
-### Corner Radii Guidelines
-- **Outer System Cards & Panels:** Apply `rounded-xl` (16px) to `rounded-2xl` (24px) for master analytic containers, enrollment tracking boards, and modular statistics panels.
-- **Form Fields & Inputs:** Set to `0.75rem` (12px) to ensure soft integration without appearing bulbous.
-- **Buttons:**
-  - Standard action buttons: `0.75rem` (12px).
-  - Pill action buttons & status tags: Fully rounded (`9999px`).
-- **Status Pills & Chips:** Fully pill-shaped (`9999px`) to distinguish categorical metadata from rectangular input components.
+A comunicação do sistema deve ser **clara, concisa, humana e orientada à solução**[cite: 1, 5]:
 
-## Components
-
-### Buttons
-- **Primary Action (Coral Técnico):**
-  - Background: `#df5241`, Text: `#ffffff`, Font: DM Sans SemiBold (`14px`), DM Sans Normal (`12px`), Padding: `10px 20px`, Radius: `12px`.
-  - Hover: `#c84434` with subtle drop shadow: `0 4px 12px rgba(223, 82, 65, 0.25)`.
-  - Used for top-tier calls-to-action: "Confirmar Matrícula", "Salvar Aluno".
-- **Secondary (Dark Graphite):**
-  - Background: `#2e2e30`, Text: `#ffffff`, Hover: `#222223`.
-  - Used for primary navigational triggers and administrative controls.
-- **Tertiary / Ghost:**
-  - Background: Transparent, Border: `1px solid #e8e9eb`, Text: `#2e2e30`.
-  - Hover: Background `#f1f3f5`.
-
-### Status Badges & Pills
-- **Matrícula Ativa (Success):** Background `#eaf7f0`, Text `#2e9e66`, Border: `1px solid rgba(46, 158, 102, 0.15)`. Radius: `9999px`.
-- **Pendente / Em Análise (Gold Accent):** Background `#fcf5e5`, Text `#9c7013`, Border: `1px solid rgba(235, 175, 45, 0.25)`.
-- **Cancelado / Risco (Priority Coral):** Background `#fff5f4`, Text `#df5241`, Border: `1px solid rgba(223, 82, 65, 0.2)`.
-
-### Cards & Modular Containers
-- Pure white background (`#ffffff`), `20px` border-radius, `24px` internal padding.
-- Hairline stroke: `1px solid #f1f3f5`.
-- Subtle elevation: multi-stop ambient shadow preventing hard edges against `#f8f9fa`.
-- Header area integrates a crisp title in `title-md` (`#2e2e30`) paired with an auxiliary counter or trailing icon button.
-
-### Form Fields & Inputs
-- **Base Style:** Background `#ffffff`, Border: `1px solid #e8e9eb`, Height: `44px`, Padding: `0 16px`, Radius: `12px`, Typography: `body-md`.
-- **Focus State:** Border: `1.5px solid #df5241`, Ring: `0 0 0 3px rgba(223, 82, 65, 0.12)`, Outline: none.
-- **Labeling:** Positioned above input in `label-md` (`#68686d`), weight `500`.
-
-### Navigation Tabs & Switchers
-- **Segmented Controls:** Container in `#f1f3f5` with `12px` radius. Active tab sits as an elevated white pill (`#ffffff`, `box-shadow: 0 2px 6px rgba(46, 46, 48, 0.06)`), text in `#2e2e30` SemiBold.
-- **Underline Tabs:** Clean horizontal strip; active tab features an ink indicator bar in `#df5241` (`3px` height, rounded tops).
-
-### Lists & Student Data Tables
-- Header row styled with uppercase `label-sm` (`#a5a5ab`), separated by a hairline border (`#e8e9eb`).
-- Data rows feature `48px` minimum height, hover state in `#f8f9fa`, with smooth cross-transitions (`150ms`).
-- Student identifiers pair circular avatars with `title-md` for the primary name and `body-sm` (`#68686d`) for the registration ID.
+- **Ação em Primeiro Lugar:** Iniciar instruções pelo objetivo (Ex: *"Consulte sua fatura na área financeira"* em vez de *"Acesse a área financeira para consultar sua fatura"*)[cite: 5].
+- **Afirmação Direta & Voz Ativa:** Preferir a voz ativa e enunciados afirmativos (Ex: *"Redefina sua senha para acessar"* em vez de *"A senha deve ser redefinida"*; *"Cancelar assinatura"* em vez de *"Não manter assinatura"*)[cite: 5].
+- **Erros como Orientação:** Mensagens de erro devem explicar a causa na linguagem do usuário (sem códigos técnicos como "Erro 409") e mostrar exatamente como resolver (Ex: *"Formato de arquivo inválido. Envie um arquivo PDF, DOCX ou XLSX de até 10 MB"*)[cite: 5].
+- **Microcopy Transparente:** Explicar a necessidade de dados solicitados (ex: CPF) e explicitar consequências graves antes de confirmações destrutivas[cite: 5].

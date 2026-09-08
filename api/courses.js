@@ -1,6 +1,11 @@
-import { requireAuth } from './auth-utils.js';
+import { filterAuthorizedSchools, requirePermission } from './auth-utils.js';
+import { applyRateLimit } from './security.js';
 
 const HOTSCOOL_API_URL = 'https://api.hotscool.com/v1';
+const fetchWithTimeout = (url, options = {}) => fetch(url, {
+  ...options,
+  signal: AbortSignal.timeout(10_000),
+});
 
 // Cache em memória para os cursos de cada escola (TTL de 10 minutos)
 const coursesCache = new Map();
@@ -19,14 +24,15 @@ export function getSchools() {
   const envKeys = Object.keys(process.env).filter((k) =>
     /^HOTSCOOL_API_KEY_\d+$/i.test(k)
   );
-  envKeys.sort();
+  envKeys.sort((a, b) => Number(a.match(/\d+$/)[0]) - Number(b.match(/\d+$/)[0]));
 
-  envKeys.forEach((k, idx) => {
+  envKeys.forEach((k) => {
     const val = process.env[k]?.trim();
     if (val) {
+      const id = Number(k.match(/\d+$/)[0]) - 1;
       schools.push({
-        id: idx,
-        name: `Escola ${idx + 1}`,
+        id,
+        name: `Escola ${id + 1}`,
         apiKey: val,
       });
     }
@@ -74,7 +80,7 @@ export async function fetchSchoolName(apiKey) {
 
   try {
     // Tenta buscar informações da escola através de um aluno aleatório
-    const response = await fetch(`${HOTSCOOL_API_URL}/students/all/0`, {
+    const response = await fetchWithTimeout(`${HOTSCOOL_API_URL}/students/all/0`, {
       method: 'GET',
       headers: {
         'x-access-token': apiKey,
@@ -119,7 +125,7 @@ export async function fetchCoursesFromSchool(apiKey) {
     const batchPages = Array.from({ length: BATCH_SIZE }, (_, i) => page + i);
     const fetchPromises = batchPages.map(async (p) => {
       try {
-        const response = await fetch(`${HOTSCOOL_API_URL}/courses/all/${p}`, {
+        const response = await fetchWithTimeout(`${HOTSCOOL_API_URL}/courses/all/${p}`, {
           method: 'GET',
           headers: {
             'x-access-token': apiKey,
@@ -159,23 +165,30 @@ export async function fetchCoursesFromSchool(apiKey) {
   }
 
   // Mapeia e formata os cursos
-  const formatted = allCourses.map((c) => ({
-    id: c.id,
-    nome: c.nome || c.titulo || 'Curso sem título',
-    descricao: c.descricao || '',
-    categoria: c.categoria || 'Geral',
-    duracao: c.duracao_curso || null,
-    imagem: c.imagem || null,
-    status: c.status || 'Ativo',
-  }));
+  const formatted = allCourses.flatMap((c) => {
+    const id = Number(c.id);
+    if (!Number.isSafeInteger(id) || id <= 0) return [];
+    return [{
+      id,
+      nome: String(c.nome || c.titulo || 'Curso sem título').slice(0, 300),
+      descricao: String(c.descricao || '').slice(0, 5000),
+      categoria: String(c.categoria || 'Geral').slice(0, 200),
+      duracao: c.duracao_curso == null ? null : String(c.duracao_curso).slice(0, 40),
+      imagem: typeof c.imagem === 'string' ? c.imagem : null,
+      status: String(c.status || 'Ativo').slice(0, 40),
+    }];
+  });
 
   coursesCache.set(apiKey, { courses: formatted, timestamp: now });
   return formatted;
 }
 
 export default async function handler(req, res) {
-  const authenticatedUser = await requireAuth(req, res);
+  const authenticatedUser = await requirePermission(req, res, 'courses:read');
   if (!authenticatedUser) return;
+  if (!applyRateLimit(req, res, {
+    name: 'courses', identity: authenticatedUser.id, max: 60, windowMs: 60_000,
+  })) return;
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -190,7 +203,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const schools = getSchools();
+    const schools = filterAuthorizedSchools(getSchools(), authenticatedUser);
 
     if (schools.length === 0) {
       return res.status(500).json({
@@ -216,8 +229,11 @@ export default async function handler(req, res) {
       });
     }
 
-    const idx = parseInt(schoolIndex, 10);
-    const targetSchool = schools[idx];
+    if (!/^\d+$/.test(String(schoolIndex))) {
+      return res.status(400).json({ error: 'Escola inválida.' });
+    }
+    const idx = Number(schoolIndex);
+    const targetSchool = schools.find((school) => school.id === idx);
 
     if (!targetSchool) {
       return res.status(404).json({ error: 'Escola não encontrada.' });

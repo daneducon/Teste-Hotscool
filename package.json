@@ -7,6 +7,7 @@
     "dev": "concurrently \"node --watch server.js\" \"vite\"",
     "dev:frontend": "vite",
     "dev:backend": "node --watch server.js",
+    "test": "node --test",
     "build": "vite build",
     "preview": "vite preview"
   },

@@ -3,31 +3,46 @@ import { jwtVerify, SignJWT } from 'jose';
 
 const COOKIE_NAME = 'hotscool_session';
 const SESSION_DURATION_SECONDS = 8 * 60 * 60;
+const EXAMPLE_SECRET = 'gere-uma-chave-aleatoria-com-pelo-menos-32-caracteres';
+const ROLE_PERMISSIONS = {
+  viewer: ['courses:read', 'students:read'],
+  operator: ['courses:read', 'students:read', 'students:write'],
+  admin: ['*'],
+};
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
-  if (!secret || secret.length < 32) return null;
+  if (!secret || secret.length < 43 || secret === EXAMPLE_SECRET || new Set(secret).size < 16) return null;
   return new TextEncoder().encode(secret);
 }
 
+function getPolicy() {
+  try {
+    const policy = JSON.parse(process.env.AUTHORIZATION_POLICY || '{}');
+    return policy && typeof policy === 'object' && !Array.isArray(policy) ? policy : {};
+  } catch {
+    return {};
+  }
+}
+
+export function getAuthorization(email) {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const entry = getPolicy()[normalizedEmail];
+  if (!entry || !ROLE_PERMISSIONS[entry.role] || !Array.isArray(entry.schools)) return null;
+  const schools = entry.schools.includes('*')
+    ? '*'
+    : [...new Set(entry.schools.filter(Number.isSafeInteger).filter((id) => id >= 0))];
+  if (schools !== '*' && schools.length === 0) return null;
+  return { role: entry.role, schools, permissions: ROLE_PERMISSIONS[entry.role] };
+}
+
 export function isAuthConfigured() {
-  const hasAccessPolicy = Boolean(
-    process.env.ALLOWED_EMAIL_DOMAIN?.trim() || process.env.ALLOWED_EMAILS?.trim()
-  );
-  return Boolean(process.env.GOOGLE_CLIENT_ID && getSecret() && hasAccessPolicy);
+  const hasValidUser = Object.keys(getPolicy()).some((email) => getAuthorization(email));
+  return Boolean(process.env.GOOGLE_CLIENT_ID && getSecret() && hasValidUser);
 }
 
 export function isEmailAllowed(email) {
-  const normalizedEmail = String(email || '').trim().toLowerCase();
-  const allowedEmails = (process.env.ALLOWED_EMAILS || '')
-    .split(',')
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-  const allowedDomain = (process.env.ALLOWED_EMAIL_DOMAIN || '').trim().toLowerCase();
-
-  return allowedEmails.includes(normalizedEmail) || (
-    allowedDomain && normalizedEmail.endsWith(`@${allowedDomain}`)
-  );
+  return Boolean(getAuthorization(email));
 }
 
 export async function createSessionToken(user) {
@@ -105,5 +120,21 @@ export async function requireAuth(req, res) {
     return null;
   }
 
+  return { ...user, authorization: getAuthorization(user.email) };
+}
+
+export async function requirePermission(req, res, permission) {
+  const user = await requireAuth(req, res);
+  if (!user) return null;
+  const permissions = user.authorization.permissions;
+  if (!permissions.includes('*') && !permissions.includes(permission)) {
+    res.status(403).json({ error: 'Você não possui permissão para esta operação.' });
+    return null;
+  }
   return user;
+}
+
+export function filterAuthorizedSchools(schools, user) {
+  if (user.authorization.schools === '*') return schools;
+  return schools.filter((school) => user.authorization.schools.includes(school.id));
 }

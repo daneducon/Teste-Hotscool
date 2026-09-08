@@ -1,10 +1,12 @@
 import { OAuth2Client } from 'google-auth-library';
 import {
   createSessionToken,
+  getAuthorization,
   isAuthConfigured,
   isEmailAllowed,
   setSessionCookie,
 } from '../auth-utils.js';
+import { applyRateLimit, requireTrustedJsonRequest } from '../security.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,6 +16,8 @@ export default async function handler(req, res) {
   if (!isAuthConfigured()) {
     return res.status(503).json({ error: 'Autenticação ainda não configurada.' });
   }
+  if (!requireTrustedJsonRequest(req, res)) return;
+  if (!applyRateLimit(req, res, { name: 'auth-google', max: 10, windowMs: 60_000 })) return;
 
   const credential = req.body?.credential;
   if (!credential || typeof credential !== 'string' || credential.length > 10000) {
@@ -42,12 +46,15 @@ export default async function handler(req, res) {
       picture: payload.picture,
     });
     setSessionCookie(res, token);
+    const authorization = getAuthorization(payload.email);
 
     return res.status(200).json({
       user: {
         email: payload.email.toLowerCase(),
         name: payload.name || payload.email,
         picture: payload.picture || null,
+        role: authorization.role,
+        schools: authorization.schools,
       },
     });
   } catch {

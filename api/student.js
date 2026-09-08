@@ -1,9 +1,14 @@
 import { fetchCoursesFromSchool } from './courses.js';
 import { randomBytes } from 'node:crypto';
-import { requireAuth } from './auth-utils.js';
+import { filterAuthorizedSchools, requirePermission } from './auth-utils.js';
+import { applyRateLimit, requireTrustedJsonRequest } from './security.js';
 
 const HOTSCOOL_API_URL = 'https://api.hotscool.com/v1';
 const HOTSCOOL_STUDENT_PORTAL_URL = process.env.HOTSCOOL_STUDENT_PORTAL_URL || 'https://app.hotscool.com';
+const fetchWithTimeout = (url, options = {}) => fetch(url, {
+  ...options,
+  signal: AbortSignal.timeout(10_000),
+});
 
 function getStudentPortalUrl(schoolName) {
   const normalizedName = String(schoolName || '')
@@ -33,14 +38,15 @@ export function getSchools() {
   const envKeys = Object.keys(process.env).filter((k) =>
     /^HOTSCOOL_API_KEY_\d+$/i.test(k)
   );
-  envKeys.sort();
+  envKeys.sort((a, b) => Number(a.match(/\d+$/)[0]) - Number(b.match(/\d+$/)[0]));
 
-  envKeys.forEach((k, idx) => {
+  envKeys.forEach((k) => {
     const val = process.env[k]?.trim();
     if (val) {
+      const id = Number(k.match(/\d+$/)[0]) - 1;
       schools.push({
-        id: idx,
-        name: `Escola ${idx + 1}`,
+        id,
+        name: `Escola ${id + 1}`,
         apiKey: val,
       });
     }
@@ -82,7 +88,7 @@ async function fetchStudentsFromSchool(apiKey, forceRefresh = false) {
     const batchPages = Array.from({ length: BATCH_SIZE }, (_, i) => page + i);
     const fetchPromises = batchPages.map(async (p) => {
       try {
-        const response = await fetch(`${HOTSCOOL_API_URL}/students/all/${p}`, {
+        const response = await fetchWithTimeout(`${HOTSCOOL_API_URL}/students/all/${p}`, {
           method: 'GET',
           headers: {
             'x-access-token': apiKey,
@@ -150,8 +156,13 @@ function isStudentMatch(student, targetEmail) {
  *   3. Se a Key não tem permissão de escrita → retorna erro claro
  */
 export default async function handler(req, res) {
-  const authenticatedUser = await requireAuth(req, res);
+  const requiredPermission = req.method === 'POST' ? 'students:write' : 'students:read';
+  const authenticatedUser = await requirePermission(req, res, requiredPermission);
   if (!authenticatedUser) return;
+  const rateLimit = req.method === 'POST'
+    ? { name: 'students-write', max: 120, windowMs: 60_000 }
+    : { name: 'students-read', max: 30, windowMs: 60_000 };
+  if (!applyRateLimit(req, res, { ...rateLimit, identity: authenticatedUser.id })) return;
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -162,7 +173,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const schools = getSchools();
+  const schools = filterAuthorizedSchools(getSchools(), authenticatedUser);
   if (schools.length === 0) {
     return res.status(500).json({
       error: 'Nenhuma chave de API configurada no .env (configure HOTSCOOL_API_KEY_1, _2, _3)',
@@ -173,6 +184,7 @@ export default async function handler(req, res) {
   // POST: Cadastrar aluno(s) e matricular em cursos
   // ==========================================
   if (req.method === 'POST') {
+    if (!requireTrustedJsonRequest(req, res)) return;
     const { batch, students, ...singleData } = req.body || {};
 
     // Se for requisição em lote
@@ -185,15 +197,36 @@ export default async function handler(req, res) {
     if (studentsToProcess.length > 100) {
       return res.status(413).json({ error: 'O lote excede o limite de 100 alunos.' });
     }
-
-    const schoolIdx = parseInt(singleData.schoolIndex ?? studentsToProcess[0]?.schoolIndex, 10) || 0;
-    const targetSchool = schools[schoolIdx];
-    if (!targetSchool) {
-      return res.status(404).json({ error: 'Escola selecionada inválida.' });
+    const requestedOperations = studentsToProcess.reduce((total, student) => {
+      const count = Array.isArray(student?.courseIds) ? student.courseIds.length : 0;
+      return total + Math.max(1, count);
+    }, 0);
+    if (requestedOperations > 500) {
+      return res.status(413).json({ error: 'O lote excede o limite de 500 operações.' });
     }
+
+    const rawSchoolIndex = singleData.schoolIndex ?? studentsToProcess[0]?.schoolIndex;
+    if (!/^\d+$/.test(String(rawSchoolIndex))) {
+      return res.status(400).json({ error: 'Escola selecionada inválida.' });
+    }
+    const schoolIdx = Number(rawSchoolIndex);
+    const targetSchool = schools.find((school) => school.id === schoolIdx);
+    if (!targetSchool) {
+      return res.status(403).json({ error: 'Escola selecionada não autorizada.' });
+    }
+    const schoolCourses = await fetchCoursesFromSchool(targetSchool.apiKey);
+    const inactiveStatuses = new Set(['inativo', 'inactive', 'arquivado', 'archived']);
+    const allowedCourseIds = new Set(
+      schoolCourses
+        .filter((course) => !inactiveStatuses.has(String(course.status).trim().toLowerCase()))
+        .map((course) => course.id)
+    );
 
     // Função auxiliar para matricular um único aluno
     async function processSingleStudent(student) {
+      if (!student || typeof student !== 'object' || Array.isArray(student)) {
+        return { ok: false, error: 'Dados do aluno inválidos.', student: {} };
+      }
       const {
         nome,
         email,
@@ -216,16 +249,28 @@ export default async function handler(req, res) {
         complemento,
       } = student;
 
-      if (!nome || !nome.trim()) {
+      const boundedFields = [
+        [cpf, 20], [ddd, 5], [celular, 30], [telefone, 30], [cep, 20],
+        [endereco, 300], [numero, 20], [cidade, 150], [estado, 2],
+        [bairro, 150], [complemento, 300],
+      ];
+      if (boundedFields.some(([value, max]) => value != null && String(value).length > max)) {
+        return { ok: false, error: 'Um ou mais campos excedem o tamanho permitido.', student: {} };
+      }
+
+      if (typeof nome !== 'string' || !nome.trim() || nome.length > 200) {
         return { ok: false, error: 'O nome do aluno é obrigatório.', student: { nome, email } };
       }
-      if (!email || !email.trim()) {
-        return { ok: false, error: 'O e-mail do aluno é obrigatório.', student: { nome, email } };
+      if (typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        return { ok: false, error: 'O e-mail do aluno é inválido.', student: { nome } };
       }
 
       const cleanNome = nome.trim();
       const cleanEmail = email.trim().toLowerCase();
-      const rawPassword = (password || senha || '').trim();
+      const rawPassword = typeof (password || senha) === 'string' ? (password || senha).trim() : '';
+      if (rawPassword.length > 128) {
+        return { ok: false, error: 'A senha excede 128 caracteres.', student: { nome: cleanNome } };
+      }
 
       const shouldNotifyEmail =
         enviar_email_notificacao === 1 ||
@@ -249,11 +294,19 @@ export default async function handler(req, res) {
       const cleanNum = numero ? Number(String(numero).replace(/\D/g, '')) : undefined;
 
       // Deduplica cursos
-      const uniqueCourseIds = Array.isArray(courseIds)
-        ? [...new Set(courseIds.map(Number).filter(Boolean))]
-        : [];
+      if (!Array.isArray(courseIds)) {
+        return { ok: false, error: 'A lista de cursos é inválida.', student: { nome: cleanNome } };
+      }
+      const normalizedCourseIds = courseIds.map(Number);
+      if (normalizedCourseIds.some((id) => !Number.isSafeInteger(id) || id <= 0)) {
+        return { ok: false, error: 'A lista de cursos contém IDs inválidos.', student: { nome: cleanNome } };
+      }
+      const uniqueCourseIds = [...new Set(normalizedCourseIds)];
       if (uniqueCourseIds.length > 50) {
         return { ok: false, error: 'O aluno excede o limite de 50 cursos.', student: { nome: cleanNome } };
+      }
+      if (uniqueCourseIds.some((id) => !allowedCourseIds.has(id))) {
+        return { ok: false, error: 'Um ou mais cursos não pertencem à escola selecionada.', student: { nome: cleanNome } };
       }
 
       // === MATRÍCULA EM CURSOS ===
@@ -283,7 +336,7 @@ export default async function handler(req, res) {
             if (bairro) bodyPayload.bairro = String(bairro).trim();
             if (complemento) bodyPayload.complemento = String(complemento).trim();
 
-            const response = await fetch(`${HOTSCOOL_API_URL}/students/enrollment`, {
+            const response = await fetchWithTimeout(`${HOTSCOOL_API_URL}/students/enrollment`, {
               method: 'POST',
               headers: {
                 'x-access-token': targetSchool.apiKey,
@@ -324,28 +377,12 @@ export default async function handler(req, res) {
         // Helper para extrair mensagem legível de erro da Hotscool
         function formatHotscoolError(item) {
           const status = item.status;
-          const d = item.data || {};
-          const dStr = JSON.stringify(d);
-
-          if (status === 401 || status === 403 || dStr.includes('Não autorizado') || dStr.includes('Nao autorizado')) {
+          if (status === 401 || status === 403) {
             return `Chave de API sem permissão de escrita/matrícula na Hotscool (HTTP ${status}). Ative a permissão de escrita desta chave no painel Hotscool.`;
           }
-
-          if (typeof d === 'string' && d) return d;
-          if (d.message) return d.message;
-          if (typeof d.error === 'string') return d.error;
-          if (d.error && typeof d.error === 'object') return JSON.stringify(d.error);
-
-          if (d.errors) {
-            if (Array.isArray(d.errors)) {
-              const msgs = d.errors.map((e) => (typeof e === 'object' ? (e.msg || e.message || JSON.stringify(e)) : e));
-              return msgs.join('; ');
-            }
-            if (typeof d.errors === 'string') return d.errors;
-            return JSON.stringify(d.errors);
-          }
-
-          if (d.msg) return d.msg;
+          if (status === 400 || status === 422) return 'A Hotscool rejeitou os dados da matrícula.';
+          if (status === 409) return 'A matrícula já existe ou está em conflito.';
+          if (status === 429) return 'Limite temporário da Hotscool excedido.';
           return `Erro ${status} na API da Hotscool`;
         }
 
@@ -382,7 +419,7 @@ export default async function handler(req, res) {
       if (cidade) leadPayload.cidade = String(cidade).trim();
       if (estado) leadPayload.estado = String(estado).trim().toUpperCase();
 
-      const leadResponse = await fetch(`${HOTSCOOL_API_URL}/leads/enrollment`, {
+      const leadResponse = await fetchWithTimeout(`${HOTSCOOL_API_URL}/leads/enrollment`, {
         method: 'POST',
         headers: {
           'x-access-token': targetSchool.apiKey,
@@ -392,14 +429,13 @@ export default async function handler(req, res) {
         body: JSON.stringify(leadPayload),
       });
 
-      const leadData = await leadResponse.json().catch(() => ({}));
       return {
         ok: leadResponse.ok,
         nome: cleanNome,
         email: cleanEmail,
         totalMatriculas: 0,
         isLead: true,
-        error: !leadResponse.ok ? (leadData?.error || 'Erro ao cadastrar lead') : null,
+        error: !leadResponse.ok ? 'A Hotscool rejeitou o cadastro do aluno.' : null,
       };
     }
 
@@ -465,7 +501,7 @@ export default async function handler(req, res) {
   const { email, refresh } = req.query;
   const forceRefresh = refresh === 'true' || refresh === '1';
 
-  if (!email) {
+  if (typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
     return res.status(400).json({ error: 'Digite o e-mail do aluno.' });
   }
 
@@ -495,7 +531,7 @@ export default async function handler(req, res) {
     // 2. Busca dados enriquecidos nível 3 (/v1/students/3/{id})
     let s3Data = {};
     try {
-      const s3Res = await fetch(`${HOTSCOOL_API_URL}/students/3/${primaryStudentId}`, {
+      const s3Res = await fetchWithTimeout(`${HOTSCOOL_API_URL}/students/3/${primaryStudentId}`, {
         headers: {
           'x-access-token': primarySchool.apiKey,
           'Accept': 'application/json',
@@ -523,18 +559,17 @@ export default async function handler(req, res) {
 
     // 4. Consolidação de cursos matriculados de todas as escolas
     const cursosMap = new Map();
-    const courseApiKeys = new Map();
     searchResults.forEach((r) => {
       const schoolName = r.match.escola || r.school.name;
       const cursos = Array.isArray(r.match.cursos_matriculados) ? r.match.cursos_matriculados : [];
       cursos.forEach((c) => {
         const id = c.id_curso || c.titulo_curso;
+        const enrollmentKey = `${r.school.id}:${id}`;
         const catalogCourse = catalogsByApiKey.get(r.school.apiKey)?.find(
           (item) => Number(item.id) === Number(c.id_curso)
         );
-        if (!cursosMap.has(id)) {
-          courseApiKeys.set(id, r.school.apiKey);
-          cursosMap.set(id, {
+        if (!cursosMap.has(enrollmentKey)) {
+          cursosMap.set(enrollmentKey, {
             id_curso: c.id_curso,
             titulo_curso: c.titulo_curso || c.nome || 'Curso sem título',
             turma: c.turma || null,
@@ -545,6 +580,8 @@ export default async function handler(req, res) {
             categoria: catalogCourse?.categoria || null,
             duracao: catalogCourse?.duracao || null,
             acessoUrl: getStudentPortalUrl(schoolName),
+            studentId: r.match.id,
+            schoolApiKey: r.school.apiKey,
           });
         }
       });
@@ -554,12 +591,12 @@ export default async function handler(req, res) {
     if (Array.isArray(s3Data.cursos_matriculados)) {
       s3Data.cursos_matriculados.forEach((c) => {
         const id = c.id_curso || c.titulo_curso;
+        const enrollmentKey = `${primarySchool.id}:${id}`;
         const catalogCourse = catalogsByApiKey.get(primarySchool.apiKey)?.find(
           (item) => Number(item.id) === Number(c.id_curso)
         );
-        if (!cursosMap.has(id)) {
-          courseApiKeys.set(id, primarySchool.apiKey);
-          cursosMap.set(id, {
+        if (!cursosMap.has(enrollmentKey)) {
+          cursosMap.set(enrollmentKey, {
             id_curso: c.id_curso,
             titulo_curso: c.titulo_curso || 'Curso sem título',
             turma: c.turma || null,
@@ -570,6 +607,8 @@ export default async function handler(req, res) {
             categoria: catalogCourse?.categoria || null,
             duracao: catalogCourse?.duracao || null,
             acessoUrl: getStudentPortalUrl(primaryStudent.escola || primarySchool.name),
+            studentId: primaryStudentId,
+            schoolApiKey: primarySchool.apiKey,
           });
         }
       });
@@ -583,6 +622,8 @@ export default async function handler(req, res) {
         if (!curso.id_curso) {
           return {
             ...curso,
+            studentId: undefined,
+            schoolApiKey: undefined,
             percentual: 0,
             percentualFormatado: '0%',
             concluido: false,
@@ -590,11 +631,11 @@ export default async function handler(req, res) {
         }
 
         try {
-          const repRes = await fetch(
-            `${HOTSCOOL_API_URL}/students/${primaryStudentId}/report/course/${curso.id_curso}`,
+          const repRes = await fetchWithTimeout(
+            `${HOTSCOOL_API_URL}/students/${curso.studentId}/report/course/${curso.id_curso}`,
             {
               headers: {
-                'x-access-token': courseApiKeys.get(curso.id_curso || curso.titulo_curso) || primarySchool.apiKey,
+                'x-access-token': curso.schoolApiKey,
                 'Accept': 'application/json',
               },
             }
@@ -637,6 +678,8 @@ export default async function handler(req, res) {
 
         return {
           ...curso,
+          studentId: undefined,
+          schoolApiKey: undefined,
           percentual: 0,
           percentualFormatado: '0%',
           concluido: false,
@@ -647,7 +690,7 @@ export default async function handler(req, res) {
     // 5. Busca Certificados Emitidos
     let certificados = [];
     try {
-      const certRes = await fetch(`${HOTSCOOL_API_URL}/certificates/issued/all/0`, {
+      const certRes = await fetchWithTimeout(`${HOTSCOOL_API_URL}/certificates/issued/all/0`, {
         headers: {
           'x-access-token': primarySchool.apiKey,
           'Accept': 'application/json',
